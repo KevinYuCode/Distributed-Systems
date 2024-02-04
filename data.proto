@@ -1,0 +1,38 @@
+syntax="proto3";
+
+package Data;
+
+message message_header {
+    uint32 magic_number = 1;
+    uint32 version = 2;
+    uint32 message_id = 3;
+}
+
+message put_request {
+    bytes value = 1;
+    uint32 key = 2;
+}
+
+message put_response {
+    bool success = 1;
+}
+
+message get_request {
+    uint32 key = 1;
+}
+
+message get_response {
+    bool status = 1;
+    bytes value = 2;
+    uint32 value_length = 3;
+}
+
+message key_value_message {
+    message_header header = 1;
+    oneof payload {
+        put_request put_request = 2;
+        put_response put_response = 3;
+        get_request get_request = 4;
+        get_response get_response = 5;
+    }
+}
