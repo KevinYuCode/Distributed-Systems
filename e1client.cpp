@@ -17,29 +17,14 @@ void E1Client::start()
 {
   clientStub = make_shared<ClientStub>();
 
-  std::cout << "Client is starting... INSIDE CLIENT #1" << std::endl;
 
+  Data::put_response dataPut = clientStub->put(7, reinterpret_cast<const uint8_t *>("kevin\0yu"), 10);
+  std::cout << "E1CLIENT: status from e1client : " << dataPut.success() << std::endl;
 
-  //Make another instance of e1client 
-
-
-  // bool status = clientStub->put(69, "420");
-  Data::put_response dataPut = clientStub->put(7, reinterpret_cast<const uint8_t *>("123"), sizeof("123"));
-
-  //
-
-  std::cout << "E1CLIENT: status from e1client put: " << dataPut.success() << std::endl;
-  std::cout << "Client is starting... INSIDE CLIENT #2" << std::endl;
   Data::get_response dataGet = clientStub->get(7);
-  // std::cout << "Client is starting... INSIDE CLIENT #3" << std::endl;
-
-  // CAUSING PROBLEMS
 
   std::cout << "data from e1client get status: " << dataGet.status() << std::endl;
   std::cout << "data from e1client get value: " << dataGet.value() << std::endl;
   std::cout << "data from e1client get length: " << dataGet.value_length() << std::endl;
-  // std::cout << "size of value: " << sizeof("2") << std::endl;
-  // std::cout << data.status() << data.value() << data.value_length() << std::endl;
   std::this_thread::sleep_for(std::chrono::milliseconds(50));
 }
-

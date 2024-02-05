@@ -17,14 +17,12 @@ void E1Client::start()
 {
   clientStub = make_shared<ClientStub>();
 
-  std::cout << "Client is starting... INSIDE CLIENT #1" << std::endl;
-
   // Make another instance of e1client
 
   if (addr_str == "10.0.0.3")
   {
     // FIRST CLIENT
-    Data::put_response dataPut = clientStub->put(7, reinterpret_cast<const uint8_t *>("123"), sizeof("123"));
+    Data::put_response dataPut = clientStub->put(7, reinterpret_cast<const uint8_t *>("123"), strlen("123"));
     std::this_thread::sleep_for(std::chrono::milliseconds(3000));
 
     std::cout << "-------------------------- CLIENT 1 RESULTS --------------------------" << std::endl;
@@ -37,7 +35,7 @@ void E1Client::start()
   else if (addr_str == "10.0.0.5")
   {
     // SECOND CLIENT
-    Data::put_response dataPut = clientStub->put(7, reinterpret_cast<const uint8_t *>("420"), sizeof("420"));
+    Data::put_response dataPut = clientStub->put(7, reinterpret_cast<const uint8_t *>("586"), strlen("586"));
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
     std::cout << "-------------------------- CLIENT 2 RESULTS --------------------------" << std::endl;

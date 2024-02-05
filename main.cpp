@@ -52,14 +52,6 @@ int main(int argc, char *argv[])
     e1Client->setAddress("10.0.0.3");
     e1Client->setServerAddress("10.0.0.2");
 
-    // Duplicate the client for the second client
-    // std::cout << "Main: ************************************" << std::endl;
-    // std::cout << "Main: init client" << std::endl;
-    // shared_ptr<E1Client> e1Client = make_shared<E1Client>("e1client");
-    // e1Client->setAddress("10.0.0.3");
-    // e1Client->setServerAddress("10.0.0.2");
-
-  // 
 
     // Starting Client to send messages to the server
     std::cout << "Main: ************************************" << std::endl;
@@ -83,38 +75,10 @@ int main(int argc, char *argv[])
         names.insert(make_pair(t->get_id(), "e1client"));
     }
 
-
-    //Second Client    
-    // {
-    //     // need a scope for the lock guard.
-    //     // if this doesn't work put it in a function
-    //     std::lock_guard<std::mutex> guard(nodes_mutex);
-
-    //     t = make_shared<thread>([e1Client]()
-    //                             {
-    // 				try{
-    // 				  e1Client -> start();
-    // 				} catch (exitThread & e){ } });
-
-
-    //     //Critical section:?
-    //     nodes.insert(make_pair(t->get_id(), e1Client));
-    //     names.insert(make_pair(t->get_id(), "e1client"));
-    // }
-
     // Terminatates the threads?
     std::cout << "Main: ************************************" << std::endl;
     std::cout << "Main: waiting for clients to finish" << std::endl;
     t->join();
-
-    // Waiting for clients to finish
-    // for (auto &thread : clientThreads)
-    // {
-    //     if (thread.joinable())
-    //     {
-    //         thread.join();
-    //     }
-    // }
 
 
     // Stops all services on the servers by setting alive flag to false.

@@ -17,13 +17,6 @@ void E1Client::start()
 {
   clientStub = make_shared<ClientStub>();
 
-  std::cout << "Client is starting... INSIDE CLIENT #1" << std::endl;
-
-  // Make another instance of e1client
-
-  std::cout << "E1CLIENT: name of the client: " << name << std::endl;
-  std::cout << "E1CLIENT: name of the ADDY: " << addr_str << std::endl;
-
   if (addr_str == "10.0.0.3")
   {
     Data::put_response dataPut = clientStub->put(4, reinterpret_cast<const uint8_t *>("69"), strlen("69"));
@@ -35,7 +28,6 @@ void E1Client::start()
     std::cout << "data from e1client get status: " << dataGet.status() << std::endl;
     std::cout << "data from e1client get value: " << dataGet.value() << std::endl;
     std::cout << "data from e1client get length: " << dataGet.value_length() << std::endl;
-    // std::cout << "Client is starting... INSIDE CLIENT #3" << std::endl;
   }
 
   else if (addr_str == "10.0.0.5")
@@ -50,7 +42,6 @@ void E1Client::start()
     std::cout << "data from e2client get status: " << dataGet.status() << std::endl;
     std::cout << "data from e2client get value: " << dataGet.value() << std::endl;
     std::cout << "data from e2client get length: " << dataGet.value_length() << std::endl;
-    // std::cout << "Client is starting... INSIDE CLIENT #3" << std::endl;
   }
   else
   {

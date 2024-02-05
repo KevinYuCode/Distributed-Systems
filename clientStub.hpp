@@ -12,8 +12,6 @@
 
 using namespace std;
 #define close mclose
-// const int MAXMSG = 1400;
-// in_port_t PORT = 8080;
 
 class ClientStub
 {
@@ -42,17 +40,11 @@ public:
     void start();
 
     void createSocket();
-    // {
-    // }
+
     void closeSocket();
-    // {
-    // }
 
     Data::get_response get(uint32_t key);
-    // {
-    // }
+
     Data::put_response put(uint32_t key, const uint8_t *value, uint16_t vlen);
-    // {
-    // }
     void setServerAddress(char *serverAddress);
 };
