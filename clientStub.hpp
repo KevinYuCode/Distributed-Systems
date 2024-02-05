@@ -51,7 +51,7 @@ public:
     Data::get_response get(uint32_t key);
     // {
     // }
-    bool put(uint32_t key, const uint8_t *value, uint16_t vlen);
+    Data::put_response put(uint32_t key, const uint8_t *value);
     // {
     // }
     void setServerAddress(char *serverAddress);

@@ -23,21 +23,21 @@ void E1Client::start()
 
 
   // bool status = clientStub->put(69, "420");
-  bool status = clientStub->put(69, reinterpret_cast<const uint8_t *>("420"), 5);
+  Data::put_response dataPut = clientStub->put(69, reinterpret_cast<const uint8_t *>("420"));
 
   //
 
-
-  // std::cout << "Client is starting... INSIDE CLIENT #2" << std::endl;
-  // Data::get_response data = clientStub->get(69);
+  std::cout << "E1CLIENT: status from e1client put: " << dataPut.success() << std::endl;
+  std::cout << "Client is starting... INSIDE CLIENT #2" << std::endl;
+  Data::get_response dataGet = clientStub->get(69);
   // std::cout << "Client is starting... INSIDE CLIENT #3" << std::endl;
 
   // CAUSING PROBLEMS
 
-  std::cout << "E1CLIENT: status from e1client put: " << status <<std::endl;
-  // std::cout << "data from e1client get: " << data.status() << std::endl;
-  // std::cout << "data from e1client get: " << data.value() << std::endl;
-  // std::cout << "data from e1client get: " << data.value_length() << std::endl;
+  std::cout << "data from e1client get: " << dataGet.status() << std::endl;
+  std::cout << "data from e1client get: " << dataGet.value() << std::endl;
+  std::cout << "data from e1client get: " << dataGet.value_length() << std::endl;
   // std::cout << data.status() << data.value() << data.value_length() << std::endl;
   std::this_thread::sleep_for(std::chrono::milliseconds(50));
 }
+

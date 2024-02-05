@@ -18,10 +18,6 @@ using namespace string_literals;
 void E1ServiceServer::setGdbmFile(string gdbm_name)
 {
     gdbm_file = gdbm_name;
-
-    // cout << "Before---------------" << endl;
-    // GDBM_FILE gdbm_database = gdbm_open("example.db", 0, GDBM_WRCREAT, 0644, 0);
-    // cout << "AFTER---------------" << endl;
 }
 
 void E1ServiceServer::stop()
@@ -34,8 +30,6 @@ void E1ServiceServer::start()
     // std::lock_guard<std::mutex> guard(gdbm_mutex); //Did I set this up correctly?
 
     // ------------------------------ SETS THE NETWORK CONFIGURATION ------------------------------ //
-
-    struct sockaddr_in servaddr, cliaddr;
 
     // get a socket to recieve messges
     if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
@@ -66,11 +60,12 @@ void E1ServiceServer::start()
 
     cout << "E1SERVICE: Before---------------" << endl;
 
-    GDBM_FILE gdbm_database = gdbm_open(gdbm_file.c_str(), 0, GDBM_WRCREAT, 0644, 0);
+    gdbm_database = gdbm_open(gdbm_file.c_str(), 0, GDBM_WRCREAT, 0644, 0);
+
     cerr << "E1SERVICE: after opening db --------------" << endl;
     cerr << "E1SERVICE: alive status:" << alive << endl;
 
-    //Seperate put routine
+    // Seperate put routine
 
     // While inside the loop waiting for a call from the client
     while (alive)
@@ -121,156 +116,200 @@ void E1ServiceServer::start()
 
         cerr << "E1SERVICE: After check header " << endl;
 
-        // ------------------------------------ Message 2: PUT REQUEST ------------------------------------ //
+        dispatch(&kv_message);
+    }
+    gdbm_close(gdbm_database);
+    close(sockfd);
+}
 
-        datum key;
-        datum value;
-        int result;
-        if (kv_message.has_put_request())
-        {
-            cerr << "E1SERVICE: In put request, before" << endl;
-            if (gdbm_file == "")
-            {
-                cerr << "E1SERVICE: L bozo" << endl;
-            }
-            else
-            {
-                cerr << gdbm_file << endl;
-            }
+void E1ServiceServer::dispatch(Data::key_value_message *kv_message)
+{
+    if (kv_message->has_put_request())
+    {
+        put_request(kv_message);
+    }
+    else if (kv_message->has_get_request())
+    {
+        get_request(kv_message);
+    }
+}
 
-            cerr << "E1SERVICE: testing" << endl;
-            if (gdbm_database == nullptr)
-            {
-                std::cerr << "E1SERVICE: Could not open database." << std::endl;
-            }
-
-            cerr << "E1SERVICE: before request " << endl;
-            auto &request = kv_message.put_request();
-            uint32_t key_value = request.key();
-            const std::string &value_str = request.value();
-
-            cerr << "E1SERVICE: After request" << endl;
-
-            // const Data::put_request &put2_request = kv_message.put_request();
-
-            std::cout << "E1SERVICE: key from e1service setting it is:" << key_value << endl;
-            std::cout << "E1SERVICE: value from e1service setting it is:" << value_str << endl;
-
-            // Key
-            key.dptr = reinterpret_cast<char *>(&key_value);
-            key.dsize = sizeof(key_value);
-            cerr << "E1SERVICE: after setting key" << endl;
-
-            // Value
-            value.dptr = const_cast<char *>(value_str.data());
-            value.dsize = sizeof(value.dptr);
-
-            cerr << "E1SERVICE: after setting key and value" << endl;
-
-            // result = gdbm_store(gdbm_database, key, value, GDBM_REPLACE);
-            result = gdbm_store(gdbm_database, key, value, GDBM_REPLACE);
-            bool success = (result == 0);
-            cerr << "E1SERVICE: After get result " << endl;
-
-            gdbm_close(gdbm_database);
-            cerr << "E1SERVICE: After gdbm close " << endl;
-
-            // Response back to the client
-
-            cerr << "E1SERVICE: success: " << success << endl;
-            Data::key_value_message kv_response;
-            Data::message_header *header = kv_response.mutable_header();
-            header->set_magic_number(1);
-            header->set_version(1);
-            header->set_message_id(kv_message.header().message_id());
-            Data::put_response *response = kv_response.mutable_put_response();
-
-            response->set_success(success);
-
-            // Serialize the response
-            std::string serializedResponse;
-            if (!kv_response.SerializeToString(&serializedResponse))
-            {
-                // Handle serialization error
-            }
-
-            // Send the response (assuming sockfd is your UDP socket and cliaddr is the client's address)
-            ssize_t sentBytes = sendto(sockfd, serializedResponse.data(), serializedResponse.size(), 0,
-                                       (struct sockaddr *)&cliaddr, sizeof(cliaddr));
-
-            if (sentBytes == -1)
-            {
-                // Handle error in sending
-                throw("Send response failed");
-            }
-
-            cerr << "--------------------- E1SERVICE: PUT request finished ---------------------" << endl;
-        }
-
-        // // -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --Message 3 : GET REQUEST-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- //
-        // else if (kv_message.has_get_request())
-        // {
-        //     // It's a GET request
-        //     auto &request = kv_message.get_request();
-        //     // Process the GET request
-
-        //     // Open the GDBM file
-        //     GDBM_FILE db = gdbm_open(gdbm_file.c_str(), 0, GDBM_READER, 0644, nullptr);
-        //     if (db == nullptr)
-        //     {
-        //         // Handle error opening database
-        //         throw("Fetch from DB failed");
-        //     }
-
-        //     // Prepare the key for GDBM
-        //     datum gdbm_key;
-        //     gdbm_key.dptr = reinterpret_cast<char *>(request.key());
-        //     gdbm_key.dsize = sizeof(request.key());
-
-        //     // Fetch the value
-        //     datum gdbm_value = gdbm_fetch(db, gdbm_key);
-
-        //     cerr << "in get (e1service), value:" << gdbm_value.dptr << endl;
-
-        //     // Prepare and send the get_response
-        //     Data::get_response response;
-        //     if (gdbm_value.dptr != nullptr)
-        //     {
-        //         // Value found
-        //         response.set_status(true);
-        //         response.set_value(gdbm_value.dptr, gdbm_value.dsize);
-        //         free(gdbm_value.dptr); // Free memory allocated by gdbm_fetch
-        //     }
-        //     else
-        //     {
-        //         // Value not found
-        //         response.set_status(false);
-        //     }
-
-        //     // Serialize the response
-        //     std::string serializedResponse;
-        //     if (!response.SerializeToString(&serializedResponse))
-        //     {
-        //         // Handle serialization error
-        //     }
-
-        //     // Send the response (assuming sockfd is your UDP socket and cliaddr is the client's address)
-        //     ssize_t sentBytes = sendto(sockfd, serializedResponse.data(), serializedResponse.size(), 0,
-        //                                (struct sockaddr *)&cliaddr, sizeof(cliaddr));
-
-        //     if (sentBytes == -1)
-        //     {
-        //         // Handle error in sending
-        //         throw("Send response failed");
-        //     }
-
-        //     // Close the database
-        //     gdbm_close(db);
-        // }
-        stop();
+void E1ServiceServer::put_request(Data::key_value_message *kv_message)
+{
+    datum key;
+    datum value;
+    int result;
+    cerr << "E1SERVICE: In put request, before" << endl;
+    if (gdbm_file == "")
+    {
+        cerr << "E1SERVICE: L bozo" << endl;
+    }
+    else
+    {
+        cerr << gdbm_file << endl;
     }
 
-    close(sockfd);
+    cerr << "E1SERVICE: testing" << endl;
+    if (gdbm_database == nullptr)
+    {
+        std::cerr << "E1SERVICE: Could not open database." << std::endl;
+    }
+
+    cerr << "E1SERVICE: before request " << endl;
+    auto &request = kv_message->put_request();
+    uint32_t key_value = request.key();
+    const std::string &value_str = request.value();
+
+    cerr << "E1SERVICE: After request" << endl;
+
+    // const Data::put_request &put2_request = kv_message.put_request();
+
+    std::cout << "E1SERVICE: key from e1service setting it is:" << key_value << endl;
+    std::cout << "E1SERVICE: value from e1service setting it is:" << value_str << endl;
+
+    // Key
+    key.dptr = reinterpret_cast<char *>(&key_value);
+    key.dsize = sizeof(key_value);
+    cerr << "E1SERVICE: after setting key" << endl;
+
+    // Value
+    value.dptr = const_cast<char *>(value_str.data());
+    value.dsize = sizeof(value.dptr);
+
+    cerr << "E1SERVICE: after setting key and value" << endl;
+
+    // result = gdbm_store(gdbm_database, key, value, GDBM_REPLACE);
+    result = gdbm_store(gdbm_database, key, value, GDBM_REPLACE);
+    bool success = (result == 0);
+    cerr << "E1SERVICE: After get result " << endl;
+
+    // TESTING PURPOSES
+    // std::cout << HexDump{buffer, (uint32_t)n} << endl;
+
+    // datum gdbm_value = gdbm_fetch(gdbm_database, key);
+    cerr << "E1SERVICE: CHECKING----------- " << sizeof(key) << endl;
+
+    // gdbm_close(gdbm_database);
+    cerr << "E1SERVICE: After gdbm close " << endl;
+
+    // Response back to the client
+
+    cerr << "E1SERVICE: success: " << success << endl;
+    Data::key_value_message kv_response;
+    Data::message_header *header = kv_response.mutable_header();
+    header->set_magic_number(1);
+    header->set_version(1);
+    header->set_message_id(kv_message->header().message_id());
+    Data::put_response *response = kv_response.mutable_put_response();
+
+    response->set_success(success);
+
+    // Serialize the response
+    std::string serializedResponse;
+    if (!kv_response.SerializeToString(&serializedResponse))
+    {
+        // Handle serialization error
+    }
+
+    // Send the response (assuming sockfd is your UDP socket and cliaddr is the client's address)
+    ssize_t sentBytes = sendto(sockfd, serializedResponse.data(), serializedResponse.size(), 0,
+                               (struct sockaddr *)&cliaddr, sizeof(cliaddr));
+
+    if (sentBytes == -1)
+    {
+        // Handle error in sending
+        throw("Send response failed");
+    }
+
+    cerr << "--------------------- E1SERVICE: PUT request finished ---------------------" << endl;
+}
+
+void E1ServiceServer::get_request(Data::key_value_message *kv_message)
+{
+    datum gdbm_key;
+    cerr << "E1SERVICE: In get request, before" << endl;
+    // It's a GET request
+    // Process the GET request
+
+    cerr << "E1SERVICE: In get request, before fetching" << endl;
+
+    if (gdbm_file == "")
+    {
+        cerr << "E1SERVICE: L bozo" << endl;
+    }
+    else
+    {
+        cerr << gdbm_file << endl;
+    }
+    if (gdbm_database == nullptr)
+    {
+        std::cerr << "E1SERVICE: Could not open database." << std::endl;
+    }
+
+    // Prepare the key for GDBM
+    // datum gdbm_key;
+    auto &request = kv_message->get_request();
+    uint32_t key_value1 = request.key();
+    gdbm_key.dptr = reinterpret_cast<char *>(&key_value1);
+    gdbm_key.dsize = sizeof(key_value1);
+    cerr << "E1SERVICE: after setting key" << endl;
+
+    cerr << "E1SERVICE (get): key " << key_value1 << endl;
+    cerr << "E1SERVICE (get): SIZE" << sizeof(gdbm_key) << endl;
+
+    datum gdbm_value = gdbm_fetch(gdbm_database, gdbm_key);
+
+    cerr << "E1SERVICE: value:fukking this hsit up" << endl;
+
+    // Prepare and send the get_response
+    // Data::get_response response;
+    cerr << "E1SERVICE: good????" << endl;
+
+    Data::key_value_message kv_msg;
+    Data::message_header *header_get = kv_msg.mutable_header();
+    header_get->set_magic_number(1);
+    header_get->set_version(1);
+    header_get->set_message_id(kv_message->header().message_id());
+    Data::get_response *response_get = kv_msg.mutable_get_response();
+
+    cerr << "E1SERVICE: before setting status and value into response" << endl;
+    if (gdbm_value.dptr != nullptr)
+    {
+        // Value found
+        response_get->set_status(true);
+        response_get->set_value(gdbm_value.dptr, gdbm_value.dsize);
+        response_get->set_value_length(gdbm_value.dsize);
+        free(gdbm_value.dptr); // Free memory allocated by gdbm_fetch
+    }
+    else
+    {
+        // Value not found
+        response_get->set_status(false);
+    }
+
+    cerr << "E1SERVICE: after setting status, the status:" << response_get->status() << endl;
+    cerr << "E1SERVICE: after setting status, the value:" << response_get->value() << endl;
+
+    // Serialize the response
+
+    // Serialize the response
+    std::string serializedResponse;
+    if (!kv_msg.SerializeToString(&serializedResponse))
+    {
+        // Handle serialization error
+    }
+
+    // Send the response (assuming sockfd is your UDP socket and cliaddr is the client's address)
+    ssize_t sentBytes = sendto(sockfd, serializedResponse.data(), serializedResponse.size(), 0,
+                               (struct sockaddr *)&cliaddr, sizeof(cliaddr));
+
+    if (sentBytes == -1)
+    {
+        // Handle error in sending
+        throw("Send response failed");
+    }
+
+    // Close the database
 }
 
 void E1ServiceServer::checkHeader(Data::key_value_message *kv_message)
@@ -280,8 +319,4 @@ void E1ServiceServer::checkHeader(Data::key_value_message *kv_message)
     uint32_t magicNumber = header.magic_number();
     uint32_t version = header.version();
     uint32_t messageId = header.message_id();
-
-    // std::cout << magicNumber << std::endl;
-    // std::cout << version << std::endl;
-    // std::cout << messageId << std::endl;
 }
