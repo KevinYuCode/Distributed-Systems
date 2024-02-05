@@ -21,12 +21,6 @@ void ClientStub::createSocket()
 {
     // struct sockaddr_in servaddr;
     std::cout << "in clientstub start" << std::endl;
-    // int n;
-    // int sockfd;
-    // socklen_t len;
-    // uint32_t blen = MAXMSG;
-    // uint8_t buffer[MAXMSG]; // to serialize into
-    // struct sockaddr_in servaddr;
     std::cout << "CLIENT STUB: 1" << std::endl;
 
     // ------------------------------------------ CONFIGURE SERVER ADDRESS------------------------------------ //
@@ -58,9 +52,9 @@ void ClientStub::createSocket()
     }
 }
 
-Data::put_response ClientStub::put(uint32_t key, const uint8_t *value)
+Data::put_response ClientStub::put(uint32_t key, const uint8_t *value, uint16_t vlen)
 {
-
+    
     createSocket();
     // std::cout << "WE OUTHERE" << std::endl;
 
@@ -76,7 +70,9 @@ Data::put_response ClientStub::put(uint32_t key, const uint8_t *value)
 
     Data::put_request *put_request = kv_message.mutable_put_request();
     put_request->set_key(key);
-    put_request->set_value(value, sizeof(value));
+    put_request->set_value(value, vlen);
+
+    
 
     // Serialize the message
     std::string serializedData;
@@ -93,11 +89,6 @@ Data::put_response ClientStub::put(uint32_t key, const uint8_t *value)
         throw("This message is way to big...");
     }
 
-    // // CHECK SERIALIZED DATA
-    // const Data::put_request &put2_request = kv_message.put_request();
-
-    // std::cout << "key from clientStub setting it is:" << put2_request.key() << endl;
-    // std::cout << "value from clientStub setting it is:" << put2_request.value() << endl;
 
     // Send the serialized data
     int n = sendto(sockfd, serializedData.data(), serializedData.size(),
@@ -204,13 +195,13 @@ Data::put_response ClientStub::put(uint32_t key, const uint8_t *value)
 Data::get_response ClientStub::get(uint32_t key)
 {
     createSocket();
-    getResult result;
+    // getResult result;
 
     Data::key_value_message kv_message;
     Data::message_header *header = kv_message.mutable_header();
     header->set_magic_number(1);
     header->set_version(1);
-    header->set_message_id(1);
+    header->set_message_id(currentSerialNumber);
 
     // Create a PUT request
 
@@ -254,8 +245,8 @@ Data::get_response ClientStub::get(uint32_t key)
         int responseLength = recvfrom(sockfd, (char *)buffer, MAXMSG,
                                       MSG_WAITALL, (struct sockaddr *)&servaddrreply, &len);
 
-        std::cout << "CLIENT STUB: ----------- HEX DUMP -----------" << std::endl;
-        std::cerr << HexDump{buffer, (uint32_t)responseLength} << endl;
+        // std::cout << "CLIENT STUB: ----------- HEX DUMP -----------" << std::endl;
+        // std::cerr << HexDump{buffer, (uint32_t)responseLength} << endl;
 
 
         std::cout << "CLIENT STUB GET: After RECV FROM" << std::endl;
@@ -311,23 +302,7 @@ Data::get_response ClientStub::get(uint32_t key)
     {
         const Data::get_response &response = kv_response.get_response();
 
-        // Handle the response
-        // if (response.status())
-        // {
-        //  response
-        // uint16_t vlen = response.value_length();
-        // return true, out_value, vlen;
-        // result.status = response.status();
-        // result.value = response.value();
-        // result.vlen = response.value_length();
         return response;
-        // }
-        // else
-        // {
-        //     // return false;
-
-        //     // throw("Failed to get")
-        // }
     }
     else
     {

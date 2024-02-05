@@ -22,8 +22,7 @@ void E1Client::start()
   //Make another instance of e1client 
 
 
-  // bool status = clientStub->put(69, "420");
-  Data::put_response dataPut = clientStub->put(69, reinterpret_cast<const uint8_t *>("420"), 5);
+  Data::put_response dataPut = clientStub->put(69, reinterpret_cast<const uint8_t *>("1\01"));
 
   //
 

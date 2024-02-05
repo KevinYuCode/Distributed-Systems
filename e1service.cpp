@@ -187,7 +187,8 @@ void E1ServiceServer::put_request(Data::key_value_message *kv_message)
     // std::cout << HexDump{buffer, (uint32_t)n} << endl;
 
     // datum gdbm_value = gdbm_fetch(gdbm_database, key);
-    cerr << "E1SERVICE: CHECKING----------- " << sizeof(key) << endl;
+    cerr << "E1SERVICE: CHECKING K----------- " << sizeof(key) << endl;
+    cerr << "E1SERVICE: CHECKING V----------- " << sizeof(value) << endl;
 
     // gdbm_close(gdbm_database);
     cerr << "E1SERVICE: After gdbm close " << endl;
@@ -255,7 +256,8 @@ void E1ServiceServer::get_request(Data::key_value_message *kv_message)
     cerr << "E1SERVICE: after setting key" << endl;
 
     cerr << "E1SERVICE (get): key " << key_value1 << endl;
-    cerr << "E1SERVICE (get): SIZE" << sizeof(gdbm_key) << endl;
+    cerr << "E1SERVICE (get): SIZE " << sizeof(gdbm_key) << endl;
+    cerr << "E1SERVICE (get): size key " << sizeof(key_value1) << endl;
 
     datum gdbm_value = gdbm_fetch(gdbm_database, gdbm_key);
 
@@ -285,10 +287,13 @@ void E1ServiceServer::get_request(Data::key_value_message *kv_message)
     {
         // Value not found
         response_get->set_status(false);
+        response_get->clear_value();       // Clear the value field
+        response_get->set_value_length(0); // Set value_length to 0
     }
 
     cerr << "E1SERVICE: after setting status, the status:" << response_get->status() << endl;
     cerr << "E1SERVICE: after setting status, the value:" << response_get->value() << endl;
+    cerr << "E1SERVICE: after setting status, the value length:" << response_get->value_length() << endl;
 
     // Serialize the response
 

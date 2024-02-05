@@ -4,7 +4,7 @@
 //We'll eventually need to have some sort of parameter for the gdbm
 E1Server::E1Server(string nodeName) : Node(nodeName)
 {
-    cout << "Main: Server " << nodeName << " adding example 1 service" << endl;
+    cout << "Main: Server " << nodeName << " adding service" << endl;
 
     // The weak pointer created from "weak_from_this()" function will point to the server, allowing reference to the server from E1ServiceServer
     E1Service = make_shared<E1ServiceServer>(nodeName, weak_from_this()); // Creates a service on the server, and the weak pointer only exists if E1Service exists
