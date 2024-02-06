@@ -31,6 +31,7 @@ class E1ServiceServer : public Service
     GDBM_FILE gdbm_database;
     struct sockaddr_in servaddr, cliaddr;
     string gdbm_file; // Each service must have its own gdbm file name (key) to retrieve the data
+    uint32_t currVersionNum = 1;
 
 public:
     // nodeName = serverName, p = weak pointer pointing to server

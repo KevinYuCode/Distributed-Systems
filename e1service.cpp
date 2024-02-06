@@ -251,8 +251,7 @@ void E1ServiceServer::get_request(Data::key_value_message *kv_message)
         throw("Send response failed");
     }
 
-        cerr << "--------------- E1SERVICE: Get Request Finished ---------------" << endl;
-
+    cerr << "--------------- E1SERVICE: Get Request Finished ---------------" << endl;
 }
 
 /**
@@ -264,4 +263,10 @@ void E1ServiceServer::checkHeader(Data::key_value_message *kv_message)
     uint32_t magicNumber = header.magic_number();
     uint32_t version = header.version();
     uint32_t messageId = header.message_id();
+
+    // Check for correct version number
+    if (version != currVersionNum)
+    {
+        throw("Error Server's Version number is incorrect");
+    }
 }
