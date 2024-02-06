@@ -17,84 +17,77 @@
 
 #include <gdbm.h>
 
-// Parallel arrays? where its [id, client/server]
-//                            [id, clientName/serverName]
+// Global Variables to store the nodes and names of the threads
 extern std::map<std::thread::id, shared_ptr<Node>> nodes;
 extern std::map<std::thread::id, string> names;
 
-
-// Make multiple main files
 int main(int argc, char *argv[])
 {
 
-    // handle command line arguments...
-    int res = network_init(argc, argv);
-    std::stringstream ss;
+  // Setup network configuration using command line args
+  int res = network_init(argc, argv);
+  std::stringstream ss;
 
-    // start all of the servers first. This will let them get up
-    // and running before the client attempts to communicate
-    std::cout << "Main: ************************************" << std::endl;
-    std::cout << "Main: starting server" << std::endl;
+  // Start up the server
+  std::cout << "Main: ************************************" << std::endl;
+  std::cout << "Main: starting server" << std::endl;
 
-    // Initializing the server
-    shared_ptr<E1Server> e1Server = make_shared<E1Server>("e1server");
-    e1Server->setAddress("10.0.0.2");
-    e1Server->setGdbmFile("dean.db");
-    e1Server->startServices();
+  // Initializing the server with its own address
+  shared_ptr<E1Server> e1Server = make_shared<E1Server>("e1server");
+  e1Server->setAddress("10.0.0.2");
+  e1Server->setGdbmFile("dean.db");
+  e1Server->startServices();
 
-    // wait for servers to get up and running...
-    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+  // Wait for the servers to setup before initalizing the client
+  std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
-    // Initializing the client
-    std::cout << "Main: ************************************" << std::endl;
-    std::cout << "Main: init client" << std::endl;
-    shared_ptr<E1Client> e1Client = make_shared<E1Client>("e1client");
-    e1Client->setAddress("10.0.0.3");
-    e1Client->setServerAddress("10.0.0.2");
+  // Initialize the client
+  std::cout << "Main: ************************************" << std::endl;
+  std::cout << "Main: init client" << std::endl;
+  shared_ptr<E1Client> e1Client = make_shared<E1Client>("e1client");
+  e1Client->setAddress("10.0.0.3");
+  e1Client->setServerAddress("10.0.0.2");
 
+  // Starting Client to send messages to the server
+  std::cout << "Main: ************************************" << std::endl;
+  std::cout << "Main: starting client" << std::endl;
+  shared_ptr<thread> t;
 
-    // Starting Client to send messages to the server
-    std::cout << "Main: ************************************" << std::endl;
-    std::cout << "Main: starting client" << std::endl;
-    shared_ptr<thread> t;
+  // Create a guard scope to add client to global variables and call its start method
+  {
+    // need a scope for the lock guard.
+    // if this doesn't work put it in a function
+    std::lock_guard<std::mutex> guard(nodes_mutex);
 
-    {
-        // need a scope for the lock guard.
-        // if this doesn't work put it in a function
-        std::lock_guard<std::mutex> guard(nodes_mutex);
-
-        t = make_shared<thread>([e1Client]()
-                                {
+    // Spin off a new thread and call the start() method on the client
+    t = make_shared<thread>([e1Client]()
+                            {
     				try{
     				  e1Client -> start();
     				} catch (exitThread & e){ } });
 
+    // Critical section
+    nodes.insert(make_pair(t->get_id(), e1Client));
+    names.insert(make_pair(t->get_id(), "e1client"));
+  }
 
-        //Critical section:?
-        nodes.insert(make_pair(t->get_id(), e1Client));
-        names.insert(make_pair(t->get_id(), "e1client"));
-    }
+  // Wait for the threads to finish its execution before proceeding with the main thread
+  std::cout << "Main: ************************************" << std::endl;
+  std::cout << "Main: waiting for clients to finish" << std::endl;
+  t->join();
 
-    // Terminatates the threads?
-    std::cout << "Main: ************************************" << std::endl;
-    std::cout << "Main: waiting for clients to finish" << std::endl;
-    t->join();
+  // Stops all services on the servers by setting alive flag to false.
+  std::cout << "Main: ************************************" << std::endl;
+  std::cout << "Main: calling stop services on server" << std::endl;
+  e1Server->stopServices();
 
+  // Wait for all server threads to complete
+  std::cout << "Main: ************************************" << std::endl;
+  std::cout << "Main: waiting for threads to complete" << std::endl;
+  e1Server->waitForServices();
 
-    // Stops all services on the servers by setting alive flag to false.
-    std::cout << "Main: ************************************" << std::endl;
-    std::cout << "Main: calling stop services on server" << std::endl;
-    e1Server->stopServices();
+  google::protobuf::ShutdownProtobufLibrary();
+  std::cout << "Main: shutting down protobuf library" << std::endl;
 
-
-    std::cout << "Main: ************************************" << std::endl;
-    std::cout << "Main: waiting for threads to complete" << std::endl;
-
-    // wait for all server threads
-    e1Server->waitForServices();
-
-    google::protobuf::ShutdownProtobufLibrary();
-    std::cout << "Main: shutting down protobuf library" << std::endl;
-
-    return 0;
+  return 0;
 }

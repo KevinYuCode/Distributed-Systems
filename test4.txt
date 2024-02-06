@@ -1,0 +1,42 @@
+Main: ************************************
+Main: starting server
+Main: Server e1server adding service
+in add Service:
+in Node start 
+number of services is 1
+Service: e1server.ex_1_service
+Main: ************************************
+Main: init client
+Main: ************************************
+Main: init client
+Main: ************************************
+Main: starting client
+Main: ************************************
+Main: waiting for clients to finish
+E1SERVICE: server received 17 bytes
+E1SERVICE: Client Address 10.0.0.3
+--------------- E1SERVICE: Put Request Finished ---------------
+E1SERVICE: server received 17 bytes
+E1SERVICE: Client Address 10.0.0.5
+CLIENT STUB: status of the put request:0
+--------------- E1SERVICE: Put Request Finished ---------------
+CLIENT STUB: status of the put request:0
+-------------------------- CLIENT 2 RESULTS --------------------------
+E1SERVICE: server received 12 bytes
+E1SERVICE: Client Address 10.0.0.5
+--------------- E1SERVICE: Get Request Finished ---------------
+Client2's GET status: 1
+Client2's GET value: 586
+Client2's GET length: 8
+-------------------------- CLIENT 1 RESULTS --------------------------
+E1SERVICE: server received 12 bytes
+E1SERVICE: Client Address 10.0.0.3
+--------------- E1SERVICE: Get Request Finished ---------------
+Client1's GET status: 1
+Client1's GET value: 586
+Client1's GET length: 8
+Main: ************************************
+Main: calling stop services on server
+Main: ************************************
+Main: waiting for threads to complete
+Main: shutting down protobuf library

@@ -1,30 +1,35 @@
 #include "e1client.hpp"
 #include "data.pb.h"
-// #include "clientStub.hpp"
 using namespace std;
 using namespace std::string_literals;
 
 #define close mclose
 
-// const int MAXMSG = 1400;
-// in_port_t PORT = 8080;
-
+/**
+ * Sets the server address attribute so the client stub can create a socket for the server
+ */
 void E1Client::setServerAddress(char *serverAddress)
 {
-  serverAddress = serverAddress;
+  this->serverAddress = serverAddress;
 }
+
+/**
+ * Defines the RPC calls that the client will invoke
+ */
 void E1Client::start()
 {
+  // Create an instance of the client stub
   clientStub = make_shared<ClientStub>();
+  clientStub->setServerAddress(serverAddress);
+  // Call the put method from the client stub
+  Data::put_response dataPut = clientStub->put(13, reinterpret_cast<const uint8_t *>("kevin\0yu"), 10);
+  std::cout << "E1CLIENT's PUT status: " << dataPut.success() << std::endl;
 
+  // Call the get method from the client stub
+  Data::get_response dataGet = clientStub->get(13);
 
-  Data::put_response dataPut = clientStub->put(7, reinterpret_cast<const uint8_t *>("kevin\0yu"), 10);
-  std::cout << "E1CLIENT: status from e1client : " << dataPut.success() << std::endl;
-
-  Data::get_response dataGet = clientStub->get(7);
-
-  std::cout << "data from e1client get status: " << dataGet.status() << std::endl;
-  std::cout << "data from e1client get value: " << dataGet.value() << std::endl;
-  std::cout << "data from e1client get length: " << dataGet.value_length() << std::endl;
-  std::this_thread::sleep_for(std::chrono::milliseconds(50));
+  // Print out the results form the get request
+  std::cout << "Client's GET status: " << dataGet.status() << std::endl;
+  std::cout << "Client's GET value: " << dataGet.value() << std::endl;
+  std::cout << "Client's GET length: " << dataGet.value_length() << std::endl;
 }

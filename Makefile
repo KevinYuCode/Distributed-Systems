@@ -16,7 +16,7 @@ OBJS= main.o network.o dumpHex.o e1server.o e1service.o e1client.o data.pb.o cli
 bin/main:  $(OBJS)
 	$(CXX) -g -o bin/main $(OBJS) $(LDFLAGS)
 	
-OBJS2= mainTest3.o network.o dumpHex.o e1server.o e1service.o e1client3.o data.pb.o clientStub.o
+OBJS2= mainTest3.o network.o dumpHex.o e1server.o e1service.o e1client.o e1client3.o data.pb.o clientStub.o
 
 # New target for bin/mainTest3
 bin/mainTest3: $(OBJS2)
@@ -47,7 +47,7 @@ dumpHex.o: dumpHex.hpp
 
 data.o: data.pb.cc data.pb.h
 
-mainTest3.o: network.hpp e1server.hpp e1service.hpp e1client3.hpp
+mainTest3.o: network.hpp e1server.hpp e1service.hpp e1client3.hpp e1client.hpp
 
 e1client3.o: e1client3.hpp network.hpp clientStub.hpp
 

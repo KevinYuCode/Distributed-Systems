@@ -9,14 +9,14 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include "clientStub.hpp"
-#include "e1service.hpp"
+// #include "e1service.hpp"
+#include "dumpHex.hpp"
+#include "network.hpp"
 
 #ifdef __APPLE__
 #define MSG_CONFIRM 0
 #endif
 
-#include "dumpHex.hpp"
-#include "network.hpp"
 
 using namespace std;
 
