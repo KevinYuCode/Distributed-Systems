@@ -18,9 +18,9 @@ E1SERVICE: Client Address 10.0.0.3
 --------------- E1SERVICE: Put Request Finished ---------------
 E1SERVICE: server received 17 bytes
 E1SERVICE: Client Address 10.0.0.5
-CLIENT STUB: status of the put request:0
+CLIENT STUB: Success status of the put request:0
 --------------- E1SERVICE: Put Request Finished ---------------
-CLIENT STUB: status of the put request:0
+CLIENT STUB: Success status of the put request:0
 -------------------------- CLIENT 2 RESULTS --------------------------
 E1SERVICE: server received 12 bytes
 E1SERVICE: Client Address 10.0.0.5

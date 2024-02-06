@@ -14,7 +14,7 @@ Main: waiting for clients to finish
 E1SERVICE: server received 24 bytes
 E1SERVICE: Client Address 10.0.0.3
 --------------- E1SERVICE: Put Request Finished ---------------
-CLIENT STUB: status of the put request:0
+CLIENT STUB: Success status of the put request:0
 E1CLIENT's PUT status: 0
 E1SERVICE: server received 12 bytes
 E1SERVICE: Client Address 10.0.0.3

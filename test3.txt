@@ -19,32 +19,32 @@ Main: starting client
 Main: ************************************
 Main: waiting for clients to finish
 INSIDE CLIENT 2: 
-E1SERVICE: server received 16 bytes
-E1SERVICE: Client Address 10.0.0.3
---------------- E1SERVICE: Put Request Finished ---------------
-E1SERVICE: server received 17 bytes
+E1SERVICE: server received E1SERVICE: server received 17 bytes17
 E1SERVICE: Client Address 10.0.0.5
-CLIENT STUB: status of the put request:0
-Client1's PUT status: 0
--------------------------- CLIENT 1 RESULTS --------------------------
---------------- E1SERVICE: Put Request Finished ---------------
-E1SERVICE: server received 12 bytes
+ bytes
 E1SERVICE: Client Address 10.0.0.3
-CLIENT STUB: status of the put request:0
+--------------- E1SERVICE: Put Request Finished ---------------CLIENT STUB: Success status of the put request:0
 Client2's PUT status: 0
 -------------------------- CLIENT 2 RESULTS --------------------------
---------------- E1SERVICE: Get Request Finished ---------------
+
+--------------- E1SERVICE: Put Request Finished ---------------
+CLIENT STUB: Success status of the put request:0
+Client1's PUT status: 0
+-------------------------- CLIENT 1 RESULTS --------------------------
 E1SERVICE: server received 12 bytes
 E1SERVICE: Client Address 10.0.0.5
-Client1's GET status: 1
-Client1's GET value: 69
-Client1's GET length: 8
+E1SERVICE: server received 12 bytes
+E1SERVICE: Client Address 10.0.0.3
 --------------- E1SERVICE: Get Request Finished ---------------
 Client2's GET status: 1
 Client2's GET value: 420
 Client2's GET length: 8
+--------------- E1SERVICE: Get Request Finished ---------------
+Client1's GET status: 1
+Client1's GET value: 111
+Client1's GET length: 8
 Main: ************************************
 Main: calling stop services on server
 Main: ************************************
 Main: waiting for threads to complete
-Main: shutting down protobuf library
+Main: shutting down protobuf librar
