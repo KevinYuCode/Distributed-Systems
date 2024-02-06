@@ -17,7 +17,7 @@ E1Server::E1Server(string nodeName) : Node(nodeName)
 // set the name of the file, this method in turn will set the name in the service class.
 void E1Server::setGdbmFile(string gdbm_name)
 {
-    gdbm_file = gdbm_name;
+    this->gdbm_file_name = gdbm_name;
 
     if (E1Service)
     {

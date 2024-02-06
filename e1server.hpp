@@ -4,7 +4,7 @@
 
 class E1Server : public Node
 {
-    string gdbm_file = "";
+    string gdbm_file_name = "";
     shared_ptr<E1ServiceServer> E1Service;
     
 public:

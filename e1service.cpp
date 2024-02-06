@@ -16,7 +16,7 @@ using namespace string_literals;
  */
 void E1ServiceServer::setGdbmFile(string gdbm_name)
 {
-    gdbm_file = gdbm_name;
+    this->gdbm_file_name = gdbm_name;
 }
 
 /**
@@ -60,7 +60,7 @@ void E1ServiceServer::start()
     char clientStrBuffer[20];
 
     // Open the database
-    gdbm_database = gdbm_open(gdbm_file.c_str(), 0, GDBM_WRCREAT, 0644, 0);
+    gdbm_database = gdbm_open(gdbm_file_name.c_str(), 0, GDBM_WRCREAT, 0644, 0);
 
     // While inside the loop waiting for a call from the client
     while (alive)

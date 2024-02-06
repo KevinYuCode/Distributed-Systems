@@ -23,14 +23,13 @@ using namespace std;
 class E1ServiceServer : public Service
 {
     // network management
-    mutex gdbm_mutex;
     int sockfd;
     in_port_t PORT = 8080;
     static const int MAXMSG = 1400;
     uint8_t udpMessage[MAXMSG];
     GDBM_FILE gdbm_database;
     struct sockaddr_in servaddr, cliaddr;
-    string gdbm_file; // Each service must have its own gdbm file name (key) to retrieve the data
+    string gdbm_file_name; // Each service must have its own gdbm file name (key) to retrieve the data
     uint32_t currVersionNum = 1;
 
 public:
