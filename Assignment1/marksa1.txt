@@ -1,0 +1,15 @@
+Documentation of your solution 6/6
+- well structured 
+- great mentioning of how you handle failed requests
+
+Code Correctness 5/6
+- Client interface should not use the protobuf data structure, as this is an implementation detail. It should operate on key, value. You should be able to change the implementation of the marshalling to use something other than protobuf and your client code should not change
+- you already defined a struct "getResult" in "clientStub.hpp" you should have used this to be the return from the get 
+
+Style And Clarity 4/4 
+- well commented and styled
+
+Testing Documentation and Cases 4/4 
+- amazing documentation
+- written in details and explains how you think
+
