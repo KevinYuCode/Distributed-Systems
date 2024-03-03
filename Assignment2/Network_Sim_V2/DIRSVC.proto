@@ -9,6 +9,7 @@ message dirSvcRequest{
     oneof function {
         registerRequest registerArgs = 4;
         searchRequest searchArgs = 5;
+        deleteRequest deleteArgs = 6;
     }
 }
 
@@ -22,13 +23,18 @@ message searchRequest {
     bytes service_name = 1;
 }
 
+message deleteRequest {
+    bytes service_name = 1;
+}
+
 message dirSvcResponse {
     uint32 magic = 1;
     uint32 version = 2;
     uint32 serial = 3;
     oneof function {
         registerResponse registerRes = 4;
-        searchResponse searchRes= 5;
+        searchResponse searchRes = 5;
+        deleteResponse deleteRes = 6;
     }
 }
 
@@ -40,4 +46,8 @@ message searchResponse {
     bool status=1;
     bytes server_name = 2;
     uint32 server_port = 3;
+}
+
+message deleteResponse {
+    bool status=1;
 }

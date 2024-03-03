@@ -34,18 +34,19 @@ void KVServiceServer::start()
 
     // --------------------------------------- REGISTER SERVICE --------------------------------------- //
     ServerRegisterInfo serverInfo;
-    cerr << "WHAT KVSERVICE SETS FOR SVCNAME" << svcName << endl;
-    
     serverInfo.serviceName = svcName;
     serverInfo.serverName = name;
     serverInfo.serverPort = PORT;
     bool status = registerService(serverInfo);
-    cerr << "REGISTER SERVICE -00-0-0-0-0-: " << status << endl;
+    cerr << "KVSERVICE: Register Service status: " << status << endl;
+
+    // bool result = dirSvcClientStub.deleteService(svcName);
+    // cerr << "KVSERVICE: RESULT " << result << endl;
+
+
 
     cerr << "in kvserviceServer::start" << endl;
     struct sockaddr_in servaddr, cliaddr;
-
-
 
     // open the GDBM file.
     if (DBMFileName.empty())
@@ -96,7 +97,7 @@ void KVServiceServer::start()
 
     socklen_t len;
     int n;
-    cerr << "alive = " << alive << endl;
+    cerr << "KVSERVICE: BEFORE ENTERING WHILE LOOP, ALIVE STATUS ----> " << alive << endl;
     while (alive)
     {
         cerr << "waiting for call from client" << endl;
@@ -152,9 +153,11 @@ void KVServiceServer::start()
 
             int servern = sendto(sockfd, udpMessage, msglen,
                                  MSG_CONFIRM, (const struct sockaddr *)&cliaddr, len);
-            // cerr << "server sent " << servern << " bytes" << endl;
         }
     }
+
+    //"At the end of the service (after the alive loop), it will delete the service from the directory service."
+    // dirSvcClientStub.deleteService(svcName);
 
     close(sockfd);
 
@@ -164,6 +167,7 @@ void KVServiceServer::start()
 #else
     gdbm_close(dataFile);
     dataFile = nullptr;
+    cerr << "--------------------ASFJKALFJASKLFJSKALF---------" << endl;
 
 #endif
 }
@@ -183,7 +187,7 @@ void KVServiceServer::callMethodVersion1(E477KV::kvRequest &receivedMsg, E477KV:
 
         bool putRes = kvPut(key, (uint8_t *)valueAsStr.c_str(), valueAsStr.length());
 
-        cerr << "put result is " << putRes << endl;
+        cerr << "KVSERVICE'S PUT STATUS: " << putRes << endl;
         E477KV::putResponse *presp = replyMsg.mutable_putres();
         presp->set_status(putRes);
     }

@@ -47,7 +47,7 @@ struct TableStruct_DIRSVC_2eproto {
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::AuxillaryParseTableField aux[]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
-  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[6]
+  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[8]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::FieldMetadata field_metadata[];
   static const ::PROTOBUF_NAMESPACE_ID::internal::SerializationTable serialization_table[];
@@ -55,6 +55,12 @@ struct TableStruct_DIRSVC_2eproto {
 };
 extern const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_DIRSVC_2eproto;
 namespace DIRSVC {
+class deleteRequest;
+class deleteRequestDefaultTypeInternal;
+extern deleteRequestDefaultTypeInternal _deleteRequest_default_instance_;
+class deleteResponse;
+class deleteResponseDefaultTypeInternal;
+extern deleteResponseDefaultTypeInternal _deleteResponse_default_instance_;
 class dirSvcRequest;
 class dirSvcRequestDefaultTypeInternal;
 extern dirSvcRequestDefaultTypeInternal _dirSvcRequest_default_instance_;
@@ -75,6 +81,8 @@ class searchResponseDefaultTypeInternal;
 extern searchResponseDefaultTypeInternal _searchResponse_default_instance_;
 }  // namespace DIRSVC
 PROTOBUF_NAMESPACE_OPEN
+template<> ::DIRSVC::deleteRequest* Arena::CreateMaybeMessage<::DIRSVC::deleteRequest>(Arena*);
+template<> ::DIRSVC::deleteResponse* Arena::CreateMaybeMessage<::DIRSVC::deleteResponse>(Arena*);
 template<> ::DIRSVC::dirSvcRequest* Arena::CreateMaybeMessage<::DIRSVC::dirSvcRequest>(Arena*);
 template<> ::DIRSVC::dirSvcResponse* Arena::CreateMaybeMessage<::DIRSVC::dirSvcResponse>(Arena*);
 template<> ::DIRSVC::registerRequest* Arena::CreateMaybeMessage<::DIRSVC::registerRequest>(Arena*);
@@ -125,6 +133,7 @@ class dirSvcRequest PROTOBUF_FINAL :
   enum FunctionCase {
     kRegisterArgs = 4,
     kSearchArgs = 5,
+    kDeleteArgs = 6,
     FUNCTION_NOT_SET = 0,
   };
 
@@ -210,6 +219,7 @@ class dirSvcRequest PROTOBUF_FINAL :
     kSerialFieldNumber = 3,
     kRegisterArgsFieldNumber = 4,
     kSearchArgsFieldNumber = 5,
+    kDeleteArgsFieldNumber = 6,
   };
   // uint32 magic = 1;
   void clear_magic();
@@ -274,6 +284,24 @@ class dirSvcRequest PROTOBUF_FINAL :
       ::DIRSVC::searchRequest* searchargs);
   ::DIRSVC::searchRequest* unsafe_arena_release_searchargs();
 
+  // .DIRSVC.deleteRequest deleteArgs = 6;
+  bool has_deleteargs() const;
+  private:
+  bool _internal_has_deleteargs() const;
+  public:
+  void clear_deleteargs();
+  const ::DIRSVC::deleteRequest& deleteargs() const;
+  ::DIRSVC::deleteRequest* release_deleteargs();
+  ::DIRSVC::deleteRequest* mutable_deleteargs();
+  void set_allocated_deleteargs(::DIRSVC::deleteRequest* deleteargs);
+  private:
+  const ::DIRSVC::deleteRequest& _internal_deleteargs() const;
+  ::DIRSVC::deleteRequest* _internal_mutable_deleteargs();
+  public:
+  void unsafe_arena_set_allocated_deleteargs(
+      ::DIRSVC::deleteRequest* deleteargs);
+  ::DIRSVC::deleteRequest* unsafe_arena_release_deleteargs();
+
   void clear_function();
   FunctionCase function_case() const;
   // @@protoc_insertion_point(class_scope:DIRSVC.dirSvcRequest)
@@ -281,6 +309,7 @@ class dirSvcRequest PROTOBUF_FINAL :
   class _Internal;
   void set_has_registerargs();
   void set_has_searchargs();
+  void set_has_deleteargs();
 
   inline bool has_function() const;
   inline void clear_has_function();
@@ -295,6 +324,7 @@ class dirSvcRequest PROTOBUF_FINAL :
     FunctionUnion() {}
     ::DIRSVC::registerRequest* registerargs_;
     ::DIRSVC::searchRequest* searchargs_;
+    ::DIRSVC::deleteRequest* deleteargs_;
   } function_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   ::PROTOBUF_NAMESPACE_ID::uint32 _oneof_case_[1];
@@ -647,6 +677,159 @@ class searchRequest PROTOBUF_FINAL :
 };
 // -------------------------------------------------------------------
 
+class deleteRequest PROTOBUF_FINAL :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:DIRSVC.deleteRequest) */ {
+ public:
+  inline deleteRequest() : deleteRequest(nullptr) {};
+  virtual ~deleteRequest();
+
+  deleteRequest(const deleteRequest& from);
+  deleteRequest(deleteRequest&& from) noexcept
+    : deleteRequest() {
+    *this = ::std::move(from);
+  }
+
+  inline deleteRequest& operator=(const deleteRequest& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline deleteRequest& operator=(deleteRequest&& from) noexcept {
+    if (GetArena() == from.GetArena()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
+  static const deleteRequest& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const deleteRequest* internal_default_instance() {
+    return reinterpret_cast<const deleteRequest*>(
+               &_deleteRequest_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    3;
+
+  friend void swap(deleteRequest& a, deleteRequest& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(deleteRequest* other) {
+    if (other == this) return;
+    if (GetArena() == other->GetArena()) {
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(deleteRequest* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline deleteRequest* New() const final {
+    return CreateMaybeMessage<deleteRequest>(nullptr);
+  }
+
+  deleteRequest* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<deleteRequest>(arena);
+  }
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void CopyFrom(const deleteRequest& from);
+  void MergeFrom(const deleteRequest& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  inline void SharedCtor();
+  inline void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(deleteRequest* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "DIRSVC.deleteRequest";
+  }
+  protected:
+  explicit deleteRequest(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  private:
+  static void ArenaDtor(void* object);
+  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  public:
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_DIRSVC_2eproto);
+    return ::descriptor_table_DIRSVC_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kServiceNameFieldNumber = 1,
+  };
+  // bytes service_name = 1;
+  void clear_service_name();
+  const std::string& service_name() const;
+  void set_service_name(const std::string& value);
+  void set_service_name(std::string&& value);
+  void set_service_name(const char* value);
+  void set_service_name(const void* value, size_t size);
+  std::string* mutable_service_name();
+  std::string* release_service_name();
+  void set_allocated_service_name(std::string* service_name);
+  GOOGLE_PROTOBUF_RUNTIME_DEPRECATED("The unsafe_arena_ accessors for"
+  "    string fields are deprecated and will be removed in a"
+  "    future release.")
+  std::string* unsafe_arena_release_service_name();
+  GOOGLE_PROTOBUF_RUNTIME_DEPRECATED("The unsafe_arena_ accessors for"
+  "    string fields are deprecated and will be removed in a"
+  "    future release.")
+  void unsafe_arena_set_allocated_service_name(
+      std::string* service_name);
+  private:
+  const std::string& _internal_service_name() const;
+  void _internal_set_service_name(const std::string& value);
+  std::string* _internal_mutable_service_name();
+  public:
+
+  // @@protoc_insertion_point(class_scope:DIRSVC.deleteRequest)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr service_name_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_DIRSVC_2eproto;
+};
+// -------------------------------------------------------------------
+
 class dirSvcResponse PROTOBUF_FINAL :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:DIRSVC.dirSvcResponse) */ {
  public:
@@ -686,6 +869,7 @@ class dirSvcResponse PROTOBUF_FINAL :
   enum FunctionCase {
     kRegisterRes = 4,
     kSearchRes = 5,
+    kDeleteRes = 6,
     FUNCTION_NOT_SET = 0,
   };
 
@@ -695,7 +879,7 @@ class dirSvcResponse PROTOBUF_FINAL :
                &_dirSvcResponse_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    3;
+    4;
 
   friend void swap(dirSvcResponse& a, dirSvcResponse& b) {
     a.Swap(&b);
@@ -771,6 +955,7 @@ class dirSvcResponse PROTOBUF_FINAL :
     kSerialFieldNumber = 3,
     kRegisterResFieldNumber = 4,
     kSearchResFieldNumber = 5,
+    kDeleteResFieldNumber = 6,
   };
   // uint32 magic = 1;
   void clear_magic();
@@ -835,6 +1020,24 @@ class dirSvcResponse PROTOBUF_FINAL :
       ::DIRSVC::searchResponse* searchres);
   ::DIRSVC::searchResponse* unsafe_arena_release_searchres();
 
+  // .DIRSVC.deleteResponse deleteRes = 6;
+  bool has_deleteres() const;
+  private:
+  bool _internal_has_deleteres() const;
+  public:
+  void clear_deleteres();
+  const ::DIRSVC::deleteResponse& deleteres() const;
+  ::DIRSVC::deleteResponse* release_deleteres();
+  ::DIRSVC::deleteResponse* mutable_deleteres();
+  void set_allocated_deleteres(::DIRSVC::deleteResponse* deleteres);
+  private:
+  const ::DIRSVC::deleteResponse& _internal_deleteres() const;
+  ::DIRSVC::deleteResponse* _internal_mutable_deleteres();
+  public:
+  void unsafe_arena_set_allocated_deleteres(
+      ::DIRSVC::deleteResponse* deleteres);
+  ::DIRSVC::deleteResponse* unsafe_arena_release_deleteres();
+
   void clear_function();
   FunctionCase function_case() const;
   // @@protoc_insertion_point(class_scope:DIRSVC.dirSvcResponse)
@@ -842,6 +1045,7 @@ class dirSvcResponse PROTOBUF_FINAL :
   class _Internal;
   void set_has_registerres();
   void set_has_searchres();
+  void set_has_deleteres();
 
   inline bool has_function() const;
   inline void clear_has_function();
@@ -856,6 +1060,7 @@ class dirSvcResponse PROTOBUF_FINAL :
     FunctionUnion() {}
     ::DIRSVC::registerResponse* registerres_;
     ::DIRSVC::searchResponse* searchres_;
+    ::DIRSVC::deleteResponse* deleteres_;
   } function_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   ::PROTOBUF_NAMESPACE_ID::uint32 _oneof_case_[1];
@@ -906,7 +1111,7 @@ class registerResponse PROTOBUF_FINAL :
                &_registerResponse_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    4;
+    5;
 
   friend void swap(registerResponse& a, registerResponse& b) {
     a.Swap(&b);
@@ -1043,7 +1248,7 @@ class searchResponse PROTOBUF_FINAL :
                &_searchResponse_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    5;
+    6;
 
   friend void swap(searchResponse& a, searchResponse& b) {
     a.Swap(&b);
@@ -1171,6 +1376,143 @@ class searchResponse PROTOBUF_FINAL :
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr server_name_;
   bool status_;
   ::PROTOBUF_NAMESPACE_ID::uint32 server_port_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_DIRSVC_2eproto;
+};
+// -------------------------------------------------------------------
+
+class deleteResponse PROTOBUF_FINAL :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:DIRSVC.deleteResponse) */ {
+ public:
+  inline deleteResponse() : deleteResponse(nullptr) {};
+  virtual ~deleteResponse();
+
+  deleteResponse(const deleteResponse& from);
+  deleteResponse(deleteResponse&& from) noexcept
+    : deleteResponse() {
+    *this = ::std::move(from);
+  }
+
+  inline deleteResponse& operator=(const deleteResponse& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline deleteResponse& operator=(deleteResponse&& from) noexcept {
+    if (GetArena() == from.GetArena()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
+  static const deleteResponse& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const deleteResponse* internal_default_instance() {
+    return reinterpret_cast<const deleteResponse*>(
+               &_deleteResponse_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    7;
+
+  friend void swap(deleteResponse& a, deleteResponse& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(deleteResponse* other) {
+    if (other == this) return;
+    if (GetArena() == other->GetArena()) {
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(deleteResponse* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline deleteResponse* New() const final {
+    return CreateMaybeMessage<deleteResponse>(nullptr);
+  }
+
+  deleteResponse* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<deleteResponse>(arena);
+  }
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void CopyFrom(const deleteResponse& from);
+  void MergeFrom(const deleteResponse& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  inline void SharedCtor();
+  inline void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(deleteResponse* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "DIRSVC.deleteResponse";
+  }
+  protected:
+  explicit deleteResponse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  private:
+  static void ArenaDtor(void* object);
+  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  public:
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_DIRSVC_2eproto);
+    return ::descriptor_table_DIRSVC_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kStatusFieldNumber = 1,
+  };
+  // bool status = 1;
+  void clear_status();
+  bool status() const;
+  void set_status(bool value);
+  private:
+  bool _internal_status() const;
+  void _internal_set_status(bool value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:DIRSVC.deleteResponse)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  bool status_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_DIRSVC_2eproto;
 };
@@ -1389,6 +1731,79 @@ inline ::DIRSVC::searchRequest* dirSvcRequest::_internal_mutable_searchargs() {
 inline ::DIRSVC::searchRequest* dirSvcRequest::mutable_searchargs() {
   // @@protoc_insertion_point(field_mutable:DIRSVC.dirSvcRequest.searchArgs)
   return _internal_mutable_searchargs();
+}
+
+// .DIRSVC.deleteRequest deleteArgs = 6;
+inline bool dirSvcRequest::_internal_has_deleteargs() const {
+  return function_case() == kDeleteArgs;
+}
+inline bool dirSvcRequest::has_deleteargs() const {
+  return _internal_has_deleteargs();
+}
+inline void dirSvcRequest::set_has_deleteargs() {
+  _oneof_case_[0] = kDeleteArgs;
+}
+inline void dirSvcRequest::clear_deleteargs() {
+  if (_internal_has_deleteargs()) {
+    if (GetArena() == nullptr) {
+      delete function_.deleteargs_;
+    }
+    clear_has_function();
+  }
+}
+inline ::DIRSVC::deleteRequest* dirSvcRequest::release_deleteargs() {
+  // @@protoc_insertion_point(field_release:DIRSVC.dirSvcRequest.deleteArgs)
+  if (_internal_has_deleteargs()) {
+    clear_has_function();
+      ::DIRSVC::deleteRequest* temp = function_.deleteargs_;
+    if (GetArena() != nullptr) {
+      temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+    }
+    function_.deleteargs_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline const ::DIRSVC::deleteRequest& dirSvcRequest::_internal_deleteargs() const {
+  return _internal_has_deleteargs()
+      ? *function_.deleteargs_
+      : *reinterpret_cast< ::DIRSVC::deleteRequest*>(&::DIRSVC::_deleteRequest_default_instance_);
+}
+inline const ::DIRSVC::deleteRequest& dirSvcRequest::deleteargs() const {
+  // @@protoc_insertion_point(field_get:DIRSVC.dirSvcRequest.deleteArgs)
+  return _internal_deleteargs();
+}
+inline ::DIRSVC::deleteRequest* dirSvcRequest::unsafe_arena_release_deleteargs() {
+  // @@protoc_insertion_point(field_unsafe_arena_release:DIRSVC.dirSvcRequest.deleteArgs)
+  if (_internal_has_deleteargs()) {
+    clear_has_function();
+    ::DIRSVC::deleteRequest* temp = function_.deleteargs_;
+    function_.deleteargs_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline void dirSvcRequest::unsafe_arena_set_allocated_deleteargs(::DIRSVC::deleteRequest* deleteargs) {
+  clear_function();
+  if (deleteargs) {
+    set_has_deleteargs();
+    function_.deleteargs_ = deleteargs;
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:DIRSVC.dirSvcRequest.deleteArgs)
+}
+inline ::DIRSVC::deleteRequest* dirSvcRequest::_internal_mutable_deleteargs() {
+  if (!_internal_has_deleteargs()) {
+    clear_function();
+    set_has_deleteargs();
+    function_.deleteargs_ = CreateMaybeMessage< ::DIRSVC::deleteRequest >(GetArena());
+  }
+  return function_.deleteargs_;
+}
+inline ::DIRSVC::deleteRequest* dirSvcRequest::mutable_deleteargs() {
+  // @@protoc_insertion_point(field_mutable:DIRSVC.dirSvcRequest.deleteArgs)
+  return _internal_mutable_deleteargs();
 }
 
 inline bool dirSvcRequest::has_function() const {
@@ -1673,6 +2088,91 @@ inline void searchRequest::unsafe_arena_set_allocated_service_name(
 
 // -------------------------------------------------------------------
 
+// deleteRequest
+
+// bytes service_name = 1;
+inline void deleteRequest::clear_service_name() {
+  service_name_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline const std::string& deleteRequest::service_name() const {
+  // @@protoc_insertion_point(field_get:DIRSVC.deleteRequest.service_name)
+  return _internal_service_name();
+}
+inline void deleteRequest::set_service_name(const std::string& value) {
+  _internal_set_service_name(value);
+  // @@protoc_insertion_point(field_set:DIRSVC.deleteRequest.service_name)
+}
+inline std::string* deleteRequest::mutable_service_name() {
+  // @@protoc_insertion_point(field_mutable:DIRSVC.deleteRequest.service_name)
+  return _internal_mutable_service_name();
+}
+inline const std::string& deleteRequest::_internal_service_name() const {
+  return service_name_.Get();
+}
+inline void deleteRequest::_internal_set_service_name(const std::string& value) {
+  
+  service_name_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value, GetArena());
+}
+inline void deleteRequest::set_service_name(std::string&& value) {
+  
+  service_name_.Set(
+    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value), GetArena());
+  // @@protoc_insertion_point(field_set_rvalue:DIRSVC.deleteRequest.service_name)
+}
+inline void deleteRequest::set_service_name(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  
+  service_name_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value),
+              GetArena());
+  // @@protoc_insertion_point(field_set_char:DIRSVC.deleteRequest.service_name)
+}
+inline void deleteRequest::set_service_name(const void* value,
+    size_t size) {
+  
+  service_name_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(
+      reinterpret_cast<const char*>(value), size), GetArena());
+  // @@protoc_insertion_point(field_set_pointer:DIRSVC.deleteRequest.service_name)
+}
+inline std::string* deleteRequest::_internal_mutable_service_name() {
+  
+  return service_name_.Mutable(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline std::string* deleteRequest::release_service_name() {
+  // @@protoc_insertion_point(field_release:DIRSVC.deleteRequest.service_name)
+  return service_name_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline void deleteRequest::set_allocated_service_name(std::string* service_name) {
+  if (service_name != nullptr) {
+    
+  } else {
+    
+  }
+  service_name_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), service_name,
+      GetArena());
+  // @@protoc_insertion_point(field_set_allocated:DIRSVC.deleteRequest.service_name)
+}
+inline std::string* deleteRequest::unsafe_arena_release_service_name() {
+  // @@protoc_insertion_point(field_unsafe_arena_release:DIRSVC.deleteRequest.service_name)
+  GOOGLE_DCHECK(GetArena() != nullptr);
+  
+  return service_name_.UnsafeArenaRelease(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      GetArena());
+}
+inline void deleteRequest::unsafe_arena_set_allocated_service_name(
+    std::string* service_name) {
+  GOOGLE_DCHECK(GetArena() != nullptr);
+  if (service_name != nullptr) {
+    
+  } else {
+    
+  }
+  service_name_.UnsafeArenaSetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      service_name, GetArena());
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:DIRSVC.deleteRequest.service_name)
+}
+
+// -------------------------------------------------------------------
+
 // dirSvcResponse
 
 // uint32 magic = 1;
@@ -1881,6 +2381,79 @@ inline ::DIRSVC::searchResponse* dirSvcResponse::mutable_searchres() {
   return _internal_mutable_searchres();
 }
 
+// .DIRSVC.deleteResponse deleteRes = 6;
+inline bool dirSvcResponse::_internal_has_deleteres() const {
+  return function_case() == kDeleteRes;
+}
+inline bool dirSvcResponse::has_deleteres() const {
+  return _internal_has_deleteres();
+}
+inline void dirSvcResponse::set_has_deleteres() {
+  _oneof_case_[0] = kDeleteRes;
+}
+inline void dirSvcResponse::clear_deleteres() {
+  if (_internal_has_deleteres()) {
+    if (GetArena() == nullptr) {
+      delete function_.deleteres_;
+    }
+    clear_has_function();
+  }
+}
+inline ::DIRSVC::deleteResponse* dirSvcResponse::release_deleteres() {
+  // @@protoc_insertion_point(field_release:DIRSVC.dirSvcResponse.deleteRes)
+  if (_internal_has_deleteres()) {
+    clear_has_function();
+      ::DIRSVC::deleteResponse* temp = function_.deleteres_;
+    if (GetArena() != nullptr) {
+      temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+    }
+    function_.deleteres_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline const ::DIRSVC::deleteResponse& dirSvcResponse::_internal_deleteres() const {
+  return _internal_has_deleteres()
+      ? *function_.deleteres_
+      : *reinterpret_cast< ::DIRSVC::deleteResponse*>(&::DIRSVC::_deleteResponse_default_instance_);
+}
+inline const ::DIRSVC::deleteResponse& dirSvcResponse::deleteres() const {
+  // @@protoc_insertion_point(field_get:DIRSVC.dirSvcResponse.deleteRes)
+  return _internal_deleteres();
+}
+inline ::DIRSVC::deleteResponse* dirSvcResponse::unsafe_arena_release_deleteres() {
+  // @@protoc_insertion_point(field_unsafe_arena_release:DIRSVC.dirSvcResponse.deleteRes)
+  if (_internal_has_deleteres()) {
+    clear_has_function();
+    ::DIRSVC::deleteResponse* temp = function_.deleteres_;
+    function_.deleteres_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline void dirSvcResponse::unsafe_arena_set_allocated_deleteres(::DIRSVC::deleteResponse* deleteres) {
+  clear_function();
+  if (deleteres) {
+    set_has_deleteres();
+    function_.deleteres_ = deleteres;
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:DIRSVC.dirSvcResponse.deleteRes)
+}
+inline ::DIRSVC::deleteResponse* dirSvcResponse::_internal_mutable_deleteres() {
+  if (!_internal_has_deleteres()) {
+    clear_function();
+    set_has_deleteres();
+    function_.deleteres_ = CreateMaybeMessage< ::DIRSVC::deleteResponse >(GetArena());
+  }
+  return function_.deleteres_;
+}
+inline ::DIRSVC::deleteResponse* dirSvcResponse::mutable_deleteres() {
+  // @@protoc_insertion_point(field_mutable:DIRSVC.dirSvcResponse.deleteRes)
+  return _internal_mutable_deleteres();
+}
+
 inline bool dirSvcResponse::has_function() const {
   return function_case() != FUNCTION_NOT_SET;
 }
@@ -2039,9 +2612,37 @@ inline void searchResponse::set_server_port(::PROTOBUF_NAMESPACE_ID::uint32 valu
   // @@protoc_insertion_point(field_set:DIRSVC.searchResponse.server_port)
 }
 
+// -------------------------------------------------------------------
+
+// deleteResponse
+
+// bool status = 1;
+inline void deleteResponse::clear_status() {
+  status_ = false;
+}
+inline bool deleteResponse::_internal_status() const {
+  return status_;
+}
+inline bool deleteResponse::status() const {
+  // @@protoc_insertion_point(field_get:DIRSVC.deleteResponse.status)
+  return _internal_status();
+}
+inline void deleteResponse::_internal_set_status(bool value) {
+  
+  status_ = value;
+}
+inline void deleteResponse::set_status(bool value) {
+  _internal_set_status(value);
+  // @@protoc_insertion_point(field_set:DIRSVC.deleteResponse.status)
+}
+
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------

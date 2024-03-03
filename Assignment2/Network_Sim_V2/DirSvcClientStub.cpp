@@ -34,7 +34,7 @@ bool DirSvcServiceStub::registerService(string svcName, string serverName, int s
     // get the current value of serial for this request.
     uint32_t serial = this->serial++;
 
-    const int maxRetries = 1; // Maximum number of retries
+    const int maxRetries = 5; // Maximum number of retries
     int retries = 0;
     bool success = false;
 
@@ -61,13 +61,8 @@ bool DirSvcServiceStub::registerService(string svcName, string serverName, int s
         msg.SerializeToArray(buffer, blen);
         // std::cout << HexDump{buffer,blen} << endl;
 
-        // send the message to the server.
-        std::cout << "blen = " << dec << blen << endl;
-
         int n = sendto(sockfd, (const char *)buffer, blen, MSG_CONFIRM,
                        (const struct sockaddr *)&servaddr, sizeof(servaddr));
-
-        cerr << "after sendto in dirsvcclienstub" << n << endl;
 
         if (n < 0)
         {
@@ -78,12 +73,9 @@ bool DirSvcServiceStub::registerService(string svcName, string serverName, int s
 
         DIRSVC::dirSvcResponse regRespMsg;
         socklen_t len = sizeof(servaddrreply);
-        cerr << "Before" << n << endl;
 
         n = recvfrom(sockfd, (char *)buffer, MAXMSG, MSG_WAITALL,
                      (struct sockaddr *)&servaddrreply, &len);
-
-        cerr << "after recv from in dirsvcclienstub" << n << endl;
 
         if (n == -1)
         {
@@ -112,7 +104,7 @@ bool DirSvcServiceStub::registerService(string svcName, string serverName, int s
     {
         cerr << "Failed to put service name after " << maxRetries << " attempts." << endl;
     }
-    cerr << "success in dirsvcclient register service:" << success << endl;
+    cerr << "DIR_SVC_CLIENT_STUB: success in dirsvcclient register service:" << success << endl;
 
     return success;
 }
@@ -164,19 +156,21 @@ ServerSearchInfo DirSvcServiceStub::searchService(string svcName)
     // send the message3
     n = sendto(sockfd, (const char *)buffer, blen,
                MSG_CONFIRM, (const struct sockaddr *)&servaddr, sizeof(servaddr));
-    // std::cout << "client sendto n = " << n << endl;
+    std::cout << "\n\nDIR_SVC_CLIENT_STUB: BYTES SENT ------------------------------------> " << dec << blen << endl;
 
     DIRSVC::dirSvcResponse searchRespMsg;
-    bool gotMessage = true;
-    do
+    const int maxRetries = 5; // Maximum number of retries
+    int retries = 0;
+    bool success = false;
+
+    while (retries < maxRetries && !success)
     {
         len = sizeof(struct sockaddr_in);
-    std::cout << "\n\nDID IT SEND------------------------------------" << dec << blen << endl;
 
         n = recvfrom(sockfd, (char *)buffer, MAXMSG,
                      MSG_WAITALL, (struct sockaddr *)&servaddrreply, &len);
-        
-        std::cout << "AFTER RECV FROM \n" << dec << blen << endl;
+
+        std::cout << "DIR_SVC_CLIENT_STUB SEARCH: AFTER RECV FROM" << endl;
 
         // std::stringstream ss;
         // ss << "client recieved = " << n << std::endl;
@@ -185,42 +179,45 @@ ServerSearchInfo DirSvcServiceStub::searchService(string svcName)
         //  check for timeout here..
         if (n == -1)
         {
-            return retVal;
+            std::cerr << " n == -1" << std::endl;
+            // return retVal;
+
+            // Handle recvfrom error (e.g., timeout)
+            ++retries;
+            continue;
         } // null ptrs and falls status };
 
-        if (!searchRespMsg.ParseFromArray(buffer, n))
+        // std::cerr << searchRespMsg.ParseFromArray(buffer, n) << "\n"
+        //           << searchRespMsg.has_searchres() << "\n"
+        //           << n << "\n"
+        //           << searchRespMsg.magic() << "\n"
+        //           << searchRespMsg.version() << "\n"
+        //           << 'DNS' << "\n" << searchRespMsg.serial() << "\n"
+        //           << serial << "\n"
+        //           << version1x << "\n"
+        //           << std::endl;
+                  
+        if (searchRespMsg.ParseFromArray(buffer, n) &&
+            searchRespMsg.magic() == 'DNS' &&
+            searchRespMsg.version() == version1x &&
+            searchRespMsg.serial() == serial &&
+            searchRespMsg.has_searchres())
         {
-            cerr << "Couild not parse message" << endl;
-            // wait for another mesage
+
+            success = searchRespMsg.searchres().status();
+            std::cout << "DIR_SVC_CLIENT_STUB: SUCCESS FOR SEARCH IS: " << success << endl;
         }
         else
         {
-            if (searchRespMsg.magic() != magic)
-            {
-                gotMessage = false;
-            }
-            else
-            {
-                if (msg.version() != searchRespMsg.version())
-                {
-                    cerr << "Version Mismatch" << endl;
-                    gotMessage = false;
-                }
-                else
-                {
-                    // wait for another message is the serial number is wrong.
-                    if (msg.serial() != searchRespMsg.serial())
-                    {
-                        cerr << "Serial Numnbers Mismatch" << endl;
-                        gotMessage = false;
-                    }
-                }
-            }
+            // Parse error or wrong message received, retry
+            std::cerr << " retrying" << std::endl;
+            ++retries;
         }
-    } while (!gotMessage);
+    }
 
     if (searchRespMsg.has_searchres())
     {
+        std::cerr << " has searchres" << std::endl;
         retVal.status = searchRespMsg.searchres().status();
         retVal.serverName = searchRespMsg.searchres().server_name();
         retVal.serverPort = searchRespMsg.searchres().server_port();
@@ -255,7 +252,6 @@ bool DirSvcServiceStub::init()
     // return one record in the res parameter with the address. The nice thing is that the address is already in a IPv4 address representation and can be used directly.
     int numAddr = getaddrinfo("dns_server", nullptr, nullptr, &res); // Does the DNS resolution meaning it converts the "kvserver" to its equivalent ip address e.g "192.116.123.12"
 
-    cerr << "number of address results is " << numAddr << endl;
     servaddr.sin_addr = ((struct sockaddr_in *)res->ai_addr)->sin_addr;
     freeaddrinfo(res);
 
@@ -290,4 +286,99 @@ void DirSvcServiceStub::shutdown()
         return;
     close(sockfd);
     ready = false;
+}
+
+bool DirSvcServiceStub::deleteService(string key)
+{
+    // init if needed
+
+    if (!ready)
+    {
+        if (!init())
+        {
+            // init returned false, so problem setting up the
+            // socket onnection
+            return false;
+        }
+    }
+
+    struct sockaddr_in servaddrreply;
+
+    int n;
+    socklen_t len;
+    uint32_t blen = MAXMSG;
+    uint8_t buffer[MAXMSG];
+
+    DIRSVC::dirSvcRequest msg;
+    msg.set_magic(magic);
+    msg.set_version(version1x);
+    msg.set_serial(serial);
+
+    DIRSVC::deleteRequest *gr = msg.mutable_deleteargs();
+
+    gr->set_service_name(key);
+    blen = msg.ByteSizeLong();
+    if (blen > MAXMSG)
+    {
+        // too long??
+        std::cerr << " *** msg too long" << std::endl;
+        // errno = ???
+        return false;
+    }
+    msg.SerializeToArray(buffer, blen);
+    // std::cout << HexDump{buffer,blen} << endl;
+    std::cout << "\n\nDIR_SVC_CLIENT_STUB: Key sent to delete ---------> " << dec << key << endl;
+
+    // send the message3
+    n = sendto(sockfd, (const char *)buffer, blen,
+               MSG_CONFIRM, (const struct sockaddr *)&servaddr, sizeof(servaddr));
+    std::cout << "\n\nDIR_SVC_CLIENT_STUB: BYTES SENT ----------> " << dec << blen << endl;
+
+    DIRSVC::dirSvcResponse deleteRespMsg;
+    const int maxRetries = 5; // Maximum number of retries
+    int retries = 0;
+    bool success = false;
+
+    while (retries < maxRetries && !success)
+    {
+        len = sizeof(struct sockaddr_in);
+
+        n = recvfrom(sockfd, (char *)buffer, MAXMSG,
+                     MSG_WAITALL, (struct sockaddr *)&servaddrreply, &len);
+
+        std::cout << "DIR_SVC_CLIENT_STUB: AFTER RECV FROM " << endl;
+
+        if (n == -1)
+        {
+            // Handle recvfrom error (e.g., timeout)
+            ++retries;
+            continue;
+        }
+
+        if (deleteRespMsg.ParseFromArray(buffer, n) &&
+            deleteRespMsg.magic() == 'DNS' &&
+            deleteRespMsg.version() == version1x &&
+            deleteRespMsg.serial() == serial &&
+            deleteRespMsg.has_deleteres())
+        {
+
+            success = deleteRespMsg.deleteres().status();
+        }
+        else
+        {
+            // Parse error or wrong message received, retry
+            ++retries;
+        }
+    }
+
+    if (deleteRespMsg.has_deleteres())
+    {
+        success = deleteRespMsg.deleteres().status();
+    }
+    else
+    {
+        cerr << "wrong message type" << endl;
+        success = false;
+    }
+    return success;
 }

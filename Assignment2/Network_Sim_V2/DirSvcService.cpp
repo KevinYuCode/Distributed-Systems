@@ -60,11 +60,11 @@ void DirSvcService::start()
 
     socklen_t len;
     int n;
-    cerr << "alive = ---->" << alive << endl;
 
     while (alive)
     {
-        cerr << "waiting for call from client" << endl;
+        cerr << "\nwaiting for call from client\n"
+             << endl;
 
         // wait for a mesage from a client
         len = sizeof(cliaddr); // len is value/result
@@ -73,7 +73,8 @@ void DirSvcService::start()
                      &len);
 
         // Received message
-        cerr << "----------------- DNS SERVER RECEIVED SOMETHING" << endl;
+        cerr << "----------------- DNS SERVER RECEIVED SOMETHING -----------------\n"
+             << endl;
         cerr << "DNS SERVER BYTES RECEIVED" << n << " bytes." << endl;
 
         DIRSVC::dirSvcRequest receivedMsg;
@@ -113,7 +114,6 @@ void DirSvcService::start()
                 // For now ignore, message doesn't have a wrong version reply
             }
 
-
             // at this point in time the reply is complete send response back
             uint32_t msglen = replyMsg.ByteSizeLong();
 
@@ -134,7 +134,7 @@ void DirSvcService::callMethodVersion1(DIRSVC::dirSvcRequest &receivedMsg, DIRSV
     if (receivedMsg.has_registerargs())
     {
         stringstream ss;
-        ss << "registerServer messagef requested" << endl;
+        ss << "DIR_SVC_SERVICE: register message requested" << endl;
         cerr << ss.str();
 
         const DIRSVC::registerRequest &preq = receivedMsg.registerargs();
@@ -151,17 +151,20 @@ void DirSvcService::callMethodVersion1(DIRSVC::dirSvcRequest &receivedMsg, DIRSV
         value.serverName = preq.server_name();
         value.serverPort = preq.server_port();
 
+        cerr << "DIR_SVC_SERVICE: Searching for following service ------->" << value.serverName << endl;
         bool registerRes = registerService(value);
 
-        cerr << "registerServer result is " << registerRes << endl;
+        cerr << "DIR_SVC_SERVICE: register service status is ----> " << registerRes << endl;
 
         DIRSVC::registerResponse *presp = replyMsg.mutable_registerres();
         presp->set_status(registerRes);
+
+        cerr << "\nDIR_SVC_SERVICE: END OF REGISTER SERVICE" << endl;
     }
     if (receivedMsg.has_searchargs())
     {
         stringstream ss;
-        ss << "Search message requested" << endl;
+        ss << "DIR_SVC_SERVICE: Search message requested" << endl;
         cerr << ss.str();
 
         const DIRSVC::searchRequest &searchReq = receivedMsg.searchargs();
@@ -173,7 +176,8 @@ void DirSvcService::callMethodVersion1(DIRSVC::dirSvcRequest &receivedMsg, DIRSV
         //     string serverName;
         //     int serverPort;
         // };
-        cerr << searchReq.service_name() << endl;
+
+        cerr << "DIR_SVC_SERVICE: Searching for following service ------->" << searchReq.service_name() << endl;
         ServerSearchInfo result = searchService(searchReq.service_name());
 
         cerr << result.status << endl;
@@ -185,7 +189,31 @@ void DirSvcService::callMethodVersion1(DIRSVC::dirSvcRequest &receivedMsg, DIRSV
         gr->set_server_name(result.serverName);
         gr->set_server_port(result.serverPort);
 
-        cerr << "\nEND OF SEARCH THING" << endl;
+        cerr << "\nDIR_SVC_SERVICE: END OF SEARCH SERVICE" << endl;
+    }
+    if (receivedMsg.has_deleteargs())
+    {
+        stringstream ss;
+        ss << "DIR_SVC_SERVICE: delete message requested" << endl;
+        cerr << ss.str();
+
+        const DIRSVC::deleteRequest &deleteReq = receivedMsg.deleteargs();
+
+        // STRUCT DEF:
+        // struct ServerSearchInfo
+        // {
+        //     bool status;
+        //     string serverName;
+        //     int serverPort;
+        // };
+        cerr << "DIR_SVC_SERVICE: deleting following service ------->" << deleteReq.service_name() << endl;
+        bool status = deleteService(deleteReq.service_name());
+
+        DIRSVC::deleteResponse *gr = replyMsg.mutable_deleteres();
+
+        gr->set_status(status);
+
+        cerr << "\nDIR_SVC_SERVICE: END OF DELETE SERVICE" << endl;
     }
 }
 
@@ -201,11 +229,6 @@ DirSvcService::ServerSearchInfo DirSvcService::searchService(string key)
     ServerSearchInfo res;
 
     auto it = servicesMap.find(key);
-
-    for (const auto &pair : servicesMap)
-    {
-        std::cout << "Key------------------>: " << pair.first << std::endl;
-    }
 
     if (it == servicesMap.end())
     {
@@ -236,13 +259,44 @@ bool DirSvcService::registerService(ServerRegisterInfo &value)
     //     string serverName;
     //     int serverPort;
     // };
-
-    std::cout << "THIS IS THE SERVICE KEY------------------>: " << value.serviceName << std::endl;
-    std::cout << "THIS IS THE SERVER KEY------------------>: " << value.serverName << std::endl;
-    std::cout << "THIS IS THE SERVER PORT------------------>: " << value.serverPort << std::endl;
+    std::cout << "\n"
+              << "DIR_SVC_SERVICE: THIS IS THE SERVICE KEY------------------>: " << value.serviceName << std::endl;
+    std::cout << "DIR_SVC_SERVICE: THIS IS THE SERVER KEY------------------>: " << value.serverName << std::endl;
+    std::cout << "DIR_SVC_SERVICE: THIS IS THE SERVER PORT------------------>: " << value.serverPort << "\n"
+              << std::endl;
 
     servicesMap[value.serviceName] = serverMapData;
 
     // You can directly return the result of std::unordered_map::insert
     return servicesMap.find(value.serviceName) != servicesMap.end() ? 1 : 0;
+}
+
+bool DirSvcService::deleteService(string key)
+{
+    auto it = servicesMap.find(key);
+
+    if (it != servicesMap.end())
+    {
+        // If the key is found erase using the iterator
+        servicesMap.erase(it);
+        auto newIt = servicesMap.find(key);
+        std::cout << "DIR_SVC_SERVICE: Deleted the following service -------->" << key
+                  << endl;
+
+        std::cout << "\n\nDIR_SVC_SERVICE: Remaining names in service server: " << endl;
+
+        // Iterate over the unordered_map using a range-based for loop
+        for (const auto &pair : servicesMap)
+        {
+            std::cout << "Key: " << pair.first << ", Server Name: " << pair.second.serverName << ", Server Port: " << pair.second.serverPort<< "\n\n" << std::endl;
+        }
+
+        return true;
+    }
+
+    std::cout << "DIR_SVC_SERVICE: Can't find following service to delete" << key
+              << endl;
+
+    // Return false if the key was not found in the map
+    return false;
 }

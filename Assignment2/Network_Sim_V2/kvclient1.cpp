@@ -46,21 +46,57 @@ void KVClient1::start()
     // }
 
     // PUT REQUEST
-    string value1 = "This is \0 a test!!"s;
-    bool putRes = kvService.kvPut((int32_t)25, (const uint8_t *)value1.data(), (uint16_t)value1.size());
-    cerr << "status is " << putRes << endl;
-    cerr << "//-------------------------------------- END OF PUT ---------------------------------------//\n" << endl;
-
-    // GET REQUEST
-    kvGetResult gres;
-    gres = kvService.kvGet((int32_t)25); // Get request
-    cerr << "status is " << gres.status << endl;
-    cerr << "//-------------------------------------- END OF GET ---------------------------------------//\n"  << endl;
-
-    // Hex Dump
-    if (gres.vlen > 0)
+    if (name == "kvclient2")
     {
-        cerr << HexDump{gres.value, gres.vlen};
+
+        string value1 = "LOOOOOOOOOOOOOOOOOOOOOOOOL"s;
+        bool putRes = kvService.kvPut((int32_t)25, (const uint8_t *)value1.data(), (uint16_t)value1.size());
+        cerr << "\n//-------------------------------------- END OF PUT ---------------------------------------//\n"
+             << endl;
+        cerr << "MESSAGE STORED IN DB------> LOOOOOOOOOOOOOOOOOOOOOOOOL"
+             << endl;
+
+        // GET REQUEST
+        kvGetResult gres;
+        gres = kvService.kvGet((int32_t)25); // Get request
+        cerr << "//-------------------------------------- END OF GET ---------------------------------------//\n"
+             << endl;
+        cerr << "STATUS OF GET IS: " << gres.status << endl;
+        cerr << "VALUE OF GET IS: " << gres.value << endl;
+
+        // Hex Dump
+        if (gres.vlen > 0)
+        {
+            // cerr << HexDump{gres.value, gres.vlen};
+        }
+    }
+    else
+    {
+        cerr << "//-------------------------------------- KV CLIENT TEST ---------------------------------------//\n"
+             << endl;
+
+        string value1 = "This is a test! Kevin!"s;
+        bool putRes = kvService.kvPut((int32_t)25, (const uint8_t *)value1.data(), (uint16_t)value1.size());
+        cerr << "//-------------------------------------- END OF PUT ---------------------------------------//\n"
+             << endl;
+        cerr << "MESSAGE STORED IN DB------> This is a test! Kevin!"
+             << endl;
+        cerr << "STATUS OF PUT IS: " << putRes << "\n"
+             << endl;
+
+        // GET REQUEST
+        kvGetResult gres;
+        gres = kvService.kvGet((int32_t)25); // Get request
+        cerr << "//-------------------------------------- END OF GET ---------------------------------------//\n"
+             << endl;
+        cerr << "STATUS OF GET IS: " << gres.status << endl;
+        cerr << "STATUS OF GET IS: " << gres.value << endl;
+
+        //     // Hex Dump
+        //     if (gres.vlen > 0)
+        //     {
+        //         // cerr << HexDump{gres.value, gres.vlen};
+        //     }
     }
 
     kvService.shutdown();

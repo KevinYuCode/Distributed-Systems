@@ -52,7 +52,7 @@ public:
     }
     ~DirSvcServiceStub()
     {
-        shutdown();
+        // shutdown();
     }
 
     void setSvcName(string svcName);
@@ -67,6 +67,7 @@ public:
     }
     bool registerService(string svcName, string serverName, int svcPort);
     ServerSearchInfo searchService(string svcName);
+    bool deleteService(string key);
 };
 
 #endif

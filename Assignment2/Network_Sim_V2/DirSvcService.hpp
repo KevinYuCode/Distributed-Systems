@@ -57,13 +57,13 @@ class DirSvcService : public Service
     in_port_t PORT;
     string svcName;
 
-    bool deleteService(string key);
     void callMethodVersion1(DIRSVC::dirSvcRequest &receivedMsg, DIRSVC::dirSvcResponse &replyMsg);
     bool registerService(ServerRegisterInfo &value);
     ServerSearchInfo searchService(string key);
+    bool deleteService(string key);
 
 public:
-    DirSvcService(string name, weak_ptr<Node> p) : Service(name + ".KV_RPC", p){};
+    DirSvcService(string name, weak_ptr<Node> p) : Service(name, p){};
     ~DirSvcService()
     {
         stop();

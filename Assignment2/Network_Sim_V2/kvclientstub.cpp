@@ -43,7 +43,7 @@ bool KVServiceStub::kvPut(int32_t key, const uint8_t *value, uint16_t vlen)
         E477KV::kvRequest msg;
         msg.set_magic(magic);
         msg.set_version(version1x);
-        msg.set_serial(serial++);
+        msg.set_serial(serial);
         E477KV::putRequest *pr = msg.mutable_putargs();
         pr->set_key(key);
         pr->set_value(std::string((const char *)value, vlen));
@@ -227,13 +227,10 @@ bool KVServiceStub::init()
     // TODO - need to add service lookup concept
 
     // --------------------------------------- DOING SERVER LOOKUP FOR SERVICE NAME --------------------------------------- //
-    // ServerSearchInfo ServerSearchInfo = dnsLookup(svcName);
+    ServerSearchInfo ServerSearchInfo = dnsLookup(svcName);
 
-    // cerr << "THE SERVER NAME IS:.................................\n\n\n\n"
-    //      << endl;
-    // cerr << ServerSearchInfo.serverName << endl;
-    // cerr << "THE SERVER NAME SET IN KV CLIENT STUB IS --------> "<<PORT << endl;
-    // cerr << "THE SERVER PORT SET IN KV CLIENT STUB IS -------->"<<serverName << endl;
+    cerr << "KV_CLIENT_STUB: THE SERVER NAME SET IN KV CLIENT STUB IS --------> " << serverName << endl;
+    cerr << "KV_CLIENT_STUB: THE SERVER PORT SET IN KV CLIENT STUB IS -------->" << PORT << endl;
 
     // SOCKET CONFIGURATION
     memset(&servaddr, 0, sizeof(servaddr));
@@ -243,16 +240,12 @@ bool KVServiceStub::init()
     // look up address by name (Version 2 of network.cpp)
     struct addrinfo *res; // This will store the IPv4 address representation
 
-    cerr << "------------------- BEFORE HERE --------------------" << endl;
+    cout << "This is the server name" << serverName << endl;
     // DNS RESOLUTION
     // return one record in the res parameter with the address. The nice thing is that the address is already in a IPv4 address representation and can be used directly.
-    int numAddr = getaddrinfo("", nullptr, nullptr, &res); // Does the DNS resolution meaning it converts the "kvserver" to its equivalent ip address e.g "192.116.123.12"
-    cerr << "------------------- HERE --------------------" << endl;
+    int numAddr = getaddrinfo(serverName.c_str(), nullptr, nullptr, &res); // Does the DNS resolution meaning it converts the "kvserver" to its equivalent ip address e.g "192.116.123.12"
 
-
-    cerr << "number of address results is " << numAddr << endl;
     servaddr.sin_addr = ((struct sockaddr_in *)res->ai_addr)->sin_addr;
-    cerr << "------------------- AFTER --------------------" << endl;
     freeaddrinfo(res);
 
     // old version that used address directly
@@ -283,20 +276,23 @@ void KVServiceStub::shutdown()
 {
     if (!ready)
         return;
+
+    bool res = dirSvcClientStub.deleteService(svcName);
+    cerr << "KVCLIENT STUB: DELETE STATUS------> " <<  res<< endl;
+    
     close(sockfd);
     ready = false;
 }
 
-// ServerSearchInfo KVServiceStub::dnsLookup(string serviceName)
-// {
+ServerSearchInfo KVServiceStub::dnsLookup(string serviceName)
+{
 
-//     ServerSearchInfo searchResult = dirSvcClientStub.searchService(svcName);
+    ServerSearchInfo searchResult = dirSvcClientStub.searchService(svcName);
 
-//     if (searchResult.status)
-//     {
-
-//         serverName = searchResult.serverName;
-//         PORT = searchResult.serverPort;
-//         }
-//     return searchResult;
-// }
+    if (searchResult.status)
+    {
+        serverName = searchResult.serverName;
+        PORT = searchResult.serverPort;
+    }
+    return searchResult;
+}

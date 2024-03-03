@@ -55,7 +55,7 @@ class KVServiceServer : public Service
     DirSvcServiceStub dirSvcClientStub;
 
 public:
-    KVServiceServer(string name, weak_ptr<Node> p) : Service(name + ".KV_RPC", p), dirSvcClientStub(name){};
+    KVServiceServer(string name, weak_ptr<Node> p) : Service(name, p), dirSvcClientStub(name){};
 
     ~KVServiceServer()
     {
@@ -75,6 +75,7 @@ public:
             dataFile = nullptr;
         }
 #endif
+
     }
 
     void setPort(in_port_t port);

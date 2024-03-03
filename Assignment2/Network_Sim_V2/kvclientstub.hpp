@@ -53,7 +53,7 @@ public:
     KVServiceStub(string name) : name(name), ready(false), serial(1), dirSvcClientStub(name) {}
     ~KVServiceStub()
     {
-        shutdown();
+        // shutdown();
     }
 
     void setSvcName(string svcName);

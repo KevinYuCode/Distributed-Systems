@@ -36,7 +36,7 @@ public:
     }
     ~KVClient1()
     {
-        kvService.shutdown();
+        // kvService.shutdown();
         stop();
     }
     void setSvcName(string svcName);
