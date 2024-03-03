@@ -6,6 +6,9 @@ using namespace std::string_literals;
 #define close mclose
 void mclose(int fd);
 
+/**
+ * Sets the service name that the client wants to perform kvRPC calls to.
+*/
 void KVServiceStub::setSvcName(string svcName)
 {
     this->svcName = svcName;
@@ -223,14 +226,16 @@ kvGetResult KVServiceStub::kvGet(int32_t key)
 bool KVServiceStub::init()
 {
 
-    // Filling server information
-    // TODO - need to add service lookup concept
-
     // --------------------------------------- DOING SERVER LOOKUP FOR SERVICE NAME --------------------------------------- //
     ServerSearchInfo ServerSearchInfo = dnsLookup(svcName);
 
     cerr << "KV_CLIENT_STUB: THE SERVER NAME SET IN KV CLIENT STUB IS --------> " << serverName << endl;
-    cerr << "KV_CLIENT_STUB: THE SERVER PORT SET IN KV CLIENT STUB IS -------->" << PORT << endl;
+    cerr << "KV_CLIENT_STUB: THE SERVER PORT SET IN KV CLIENT STUB IS --------> " << PORT << "\n"
+         << endl;
+
+
+
+
 
     // SOCKET CONFIGURATION
     memset(&servaddr, 0, sizeof(servaddr));
@@ -240,7 +245,6 @@ bool KVServiceStub::init()
     // look up address by name (Version 2 of network.cpp)
     struct addrinfo *res; // This will store the IPv4 address representation
 
-    cout << "This is the server name" << serverName << endl;
     // DNS RESOLUTION
     // return one record in the res parameter with the address. The nice thing is that the address is already in a IPv4 address representation and can be used directly.
     int numAddr = getaddrinfo(serverName.c_str(), nullptr, nullptr, &res); // Does the DNS resolution meaning it converts the "kvserver" to its equivalent ip address e.g "192.116.123.12"
@@ -278,12 +282,15 @@ void KVServiceStub::shutdown()
         return;
 
     bool res = dirSvcClientStub.deleteService(svcName);
-    cerr << "KVCLIENT STUB: DELETE STATUS------> " <<  res<< endl;
-    
+    cerr << "KVCLIENT STUB: DELETE STATUS------> " << res << endl;
+
     close(sockfd);
     ready = false;
 }
 
+/**
+ * Method to search for the server name and port based on a service name.
+*/
 ServerSearchInfo KVServiceStub::dnsLookup(string serviceName)
 {
 

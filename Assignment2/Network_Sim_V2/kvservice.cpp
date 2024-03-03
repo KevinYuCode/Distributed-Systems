@@ -38,14 +38,7 @@ void KVServiceServer::start()
     serverInfo.serverName = name;
     serverInfo.serverPort = PORT;
     bool status = registerService(serverInfo);
-    cerr << "KVSERVICE: Register Service status: " << status << endl;
 
-    // bool result = dirSvcClientStub.deleteService(svcName);
-    // cerr << "KVSERVICE: RESULT " << result << endl;
-
-
-
-    cerr << "in kvserviceServer::start" << endl;
     struct sockaddr_in servaddr, cliaddr;
 
     // open the GDBM file.
@@ -97,7 +90,6 @@ void KVServiceServer::start()
 
     socklen_t len;
     int n;
-    cerr << "KVSERVICE: BEFORE ENTERING WHILE LOOP, ALIVE STATUS ----> " << alive << endl;
     while (alive)
     {
         cerr << "waiting for call from client" << endl;
@@ -187,7 +179,6 @@ void KVServiceServer::callMethodVersion1(E477KV::kvRequest &receivedMsg, E477KV:
 
         bool putRes = kvPut(key, (uint8_t *)valueAsStr.c_str(), valueAsStr.length());
 
-        cerr << "KVSERVICE'S PUT STATUS: " << putRes << endl;
         E477KV::putResponse *presp = replyMsg.mutable_putres();
         presp->set_status(putRes);
     }
@@ -267,7 +258,7 @@ bool KVServiceServer::registerService(ServerRegisterInfo serverInfo)
     string serviceName = serverInfo.serviceName;
     string serverName = serverInfo.serverName;
     int serverPort = serverInfo.serverPort;
-    cerr << "DIR SVC CLIENT STUB SETTING SVC NAME ---> " << svcName << endl;
+    cerr << "DIR_SVC_CLIENT_STUB: Registering Service Name ---> " << svcName << endl;
 
     bool status = dirSvcClientStub.registerService(serviceName, serverName, serverPort);
     return status;

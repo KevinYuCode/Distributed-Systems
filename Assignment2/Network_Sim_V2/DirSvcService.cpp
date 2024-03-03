@@ -15,23 +15,26 @@ void DirSvcService::stop()
     alive = false;
 }
 
-// SETTING THE PORT NUMBER
+// Sets the port that the dirSvcService will listen on 
 void DirSvcService::setPort(in_port_t port)
 {
     PORT = port;
 }
 
-// SETTING THE SERVICE NAME
+// Note this method is not needed since the DNS server doesn't request a service 
 void DirSvcService::setSvcName(string svcName)
 {
     this->svcName = svcName;
 }
 
+/**
+ * DNS server configures socket information and starts listening for incoming requests from the DirSvcClientStub
+*/
 void DirSvcService::start()
 {
 
     // --------------------------------------- REGISTER SERVICE --------------------------------------- //
-    cerr << "-------------------- Registering DNS --------------------" << endl;
+    cerr << "\n-------------------- Registering DNS --------------------" << endl;
     struct sockaddr_in servaddr, cliaddr;
 
     // searchService a socket to recieve messges
@@ -75,7 +78,6 @@ void DirSvcService::start()
         // Received message
         cerr << "----------------- DNS SERVER RECEIVED SOMETHING -----------------\n"
              << endl;
-        cerr << "DNS SERVER BYTES RECEIVED" << n << " bytes." << endl;
 
         DIRSVC::dirSvcRequest receivedMsg;
         DIRSVC::dirSvcResponse replyMsg;
@@ -99,8 +101,6 @@ void DirSvcService::start()
             replyMsg.set_magic(magic);
             replyMsg.set_version(receivedMsg.version());
             replyMsg.set_serial(receivedMsg.serial());
-
-            cerr << "RECEIVED VERSION NUMBER" << receivedMsg.version() << endl;
 
             // POSSSIBLE PROBLEM
             if ((receivedMsg.version()) == version1x)
@@ -129,6 +129,9 @@ void DirSvcService::start()
     close(sockfd);
 }
 
+/**
+ * Determines what message was requested by the DirSvcClientStub (either search, register, delete)
+*/
 void DirSvcService::callMethodVersion1(DIRSVC::dirSvcRequest &receivedMsg, DIRSVC::dirSvcResponse &replyMsg)
 {
     if (receivedMsg.has_registerargs())
@@ -151,10 +154,7 @@ void DirSvcService::callMethodVersion1(DIRSVC::dirSvcRequest &receivedMsg, DIRSV
         value.serverName = preq.server_name();
         value.serverPort = preq.server_port();
 
-        cerr << "DIR_SVC_SERVICE: Searching for following service ------->" << value.serverName << endl;
         bool registerRes = registerService(value);
-
-        cerr << "DIR_SVC_SERVICE: register service status is ----> " << registerRes << endl;
 
         DIRSVC::registerResponse *presp = replyMsg.mutable_registerres();
         presp->set_status(registerRes);
@@ -177,12 +177,13 @@ void DirSvcService::callMethodVersion1(DIRSVC::dirSvcRequest &receivedMsg, DIRSV
         //     int serverPort;
         // };
 
-        cerr << "DIR_SVC_SERVICE: Searching for following service ------->" << searchReq.service_name() << endl;
+        cerr << "DIR_SVC_SERVICE: Searching for following service -------> " << searchReq.service_name() << "\n"
+             << endl;
         ServerSearchInfo result = searchService(searchReq.service_name());
 
-        cerr << result.status << endl;
-        cerr << result.serverName << endl;
-        cerr << result.serverPort << endl;
+        cerr << "DIR_SVC_SERVICE: Search Resolved Status -------> " << result.status << endl;
+        cerr << "DIR_SVC_SERVICE: Search Resolved Server Name -------> " << result.serverName << endl;
+        cerr << "DIR_SVC_SERVICE: Search Resolved Server Port-------> " << result.serverPort << endl;
 
         DIRSVC::searchResponse *gr = replyMsg.mutable_searchres();
         gr->set_status(result.status);
@@ -217,6 +218,10 @@ void DirSvcService::callMethodVersion1(DIRSVC::dirSvcRequest &receivedMsg, DIRSV
     }
 }
 
+
+/**
+ * Searches through the unordered map to find the corresponding server name and server port based on the service name
+*/
 DirSvcService::ServerSearchInfo DirSvcService::searchService(string key)
 {
     // STRUCT DEF:
@@ -246,6 +251,9 @@ DirSvcService::ServerSearchInfo DirSvcService::searchService(string key)
     return res;
 }
 
+/**
+ * Registers service into unordered map and stores the service name as the key and the server name and port as the value.
+*/
 bool DirSvcService::registerService(ServerRegisterInfo &value)
 {
     bool status = false;
@@ -271,6 +279,10 @@ bool DirSvcService::registerService(ServerRegisterInfo &value)
     return servicesMap.find(value.serviceName) != servicesMap.end() ? 1 : 0;
 }
 
+
+/**
+ * Deletes service from unordered map to remove the service from the DNS.
+*/
 bool DirSvcService::deleteService(string key)
 {
     auto it = servicesMap.find(key);
@@ -288,7 +300,8 @@ bool DirSvcService::deleteService(string key)
         // Iterate over the unordered_map using a range-based for loop
         for (const auto &pair : servicesMap)
         {
-            std::cout << "Key: " << pair.first << ", Server Name: " << pair.second.serverName << ", Server Port: " << pair.second.serverPort<< "\n\n" << std::endl;
+            std::cout << "Key: " << pair.first << ", Server Name: " << pair.second.serverName << ", Server Port: " << pair.second.serverPort << "\n\n"
+                      << std::endl;
         }
 
         return true;

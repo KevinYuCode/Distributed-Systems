@@ -465,7 +465,7 @@ void Node::startServices(){
    // global maps are not thread safe
    lock_guard<mutex> guard(nodes_mutex);
    for (it = services.begin(); it != services.end(); it++){
-       cout << "Starting service: " << (*it)->name << endl;
+       cout << "\nStarting service: " << (*it)->name << endl;
        shared_ptr<Service> tmp = *it;
        tmp->theThread = thread([tmp](){
           try {

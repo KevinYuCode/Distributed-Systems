@@ -33,18 +33,21 @@ int main(int argc, char *argv[])
               << std::endl;
 
     // KY: -------------------------------------- DNS SERVER -------------------------------------- //
+    // Initalizing the DNS server
     shared_ptr<DirSvcServer> dnsServer = make_shared<DirSvcServer>("dns_server");
 
+    // Configuring DNS server's address, port number, service name. And then initializing and starting its services.
     dnsServer->setAddress("10.0.0.69");
     dnsServer->setPort(8081);
-    dnsServer->setSvcName("DNS");
-    dnsServer->init(); // Initializes the simulated DNS config and other activities??
+    dnsServer->setSvcName("DNS"); //Note I don't think a service name is necessary since the DNS doesn't request service name
+    dnsServer->init();          // Initializes the simulated DNS config and other activities??
     dnsServer->startServices(); // Starts up the list of services by creating a new thread for each service so aka one service for each server.
 
     // KY: -------------------------------------- KVSERVER1 -------------------------------------- //
-    // KY: Every instance of a server that is created, a new service is added to the node's "services" list
+    // Initalizing the DNS server
     shared_ptr<KVServer> kvServer = make_shared<KVServer>("kvserver");
 
+    // Configuring KV server 1's address, port number, service name. And then initializing and starting its services.
     kvServer->setAddress("10.0.0.12");
     kvServer->setPort(8080);
     kvServer->setSvcName("email");
@@ -56,6 +59,7 @@ int main(int argc, char *argv[])
     // KY: Every instance of a server that is created, a new service is added to the node's "services" list
     shared_ptr<KVServer> kvServer2 = make_shared<KVServer>("kvserver2");
 
+    // Configuring KV server 2's address, port number, service name. And then initializing and starting its services.
     kvServer2->setAddress("10.0.0.10");
     kvServer2->setPort(8089);
     kvServer2->setSvcName("taxi");
@@ -65,7 +69,8 @@ int main(int argc, char *argv[])
 
     // KY: -------------------------------------- INITIALIZING CLIENT 1-------------------------------------- //
     std::cout << "\nMain: ************************************" << std::endl;
-    std::cout << "Main: init client\n" << std::endl;
+    std::cout << "Main: init client\n"
+              << std::endl;
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     shared_ptr<KVClient1> kvClient = make_shared<KVClient1>("kvclient");
     kvClient->setAddress("10.0.0.14");
@@ -132,7 +137,6 @@ int main(int argc, char *argv[])
         shared_ptr<thread> tmp = *thit;
         tmp->join();
     }
-
 
     // when clients finish, shut down the servers
     // TODO - combine into node stop? that is node stop should

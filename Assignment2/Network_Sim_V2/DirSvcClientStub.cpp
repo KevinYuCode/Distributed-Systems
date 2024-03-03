@@ -12,6 +12,12 @@ void DirSvcServiceStub::setSvcName(string svcName)
 }
 
 // -------------------------------------------------- Register Service -------------------------------------------------- //
+
+/**
+ * Same functionality as KVPUT but instead of storing a key and a value we are using a service name as the key and the value is the server name and server port.
+ * The DirSvcClientStub is interface for how clients and kv servers will interact with the DNS server.
+ * This method is used for registering a service to the DNS server.
+ */
 bool DirSvcServiceStub::registerService(string svcName, string serverName, int svcPort)
 {
     // init if needed
@@ -38,6 +44,7 @@ bool DirSvcServiceStub::registerService(string svcName, string serverName, int s
     int retries = 0;
     bool success = false;
 
+    // At least once semantics
     while (retries < maxRetries && !success)
     {
         DIRSVC::dirSvcRequest msg;
@@ -84,6 +91,7 @@ bool DirSvcServiceStub::registerService(string svcName, string serverName, int s
             continue;
         }
 
+        // Verify header details and correct message type
         if (regRespMsg.ParseFromArray(buffer, n) &&
             regRespMsg.magic() == 'DNS' &&
             regRespMsg.version() == version1x &&
@@ -104,11 +112,15 @@ bool DirSvcServiceStub::registerService(string svcName, string serverName, int s
     {
         cerr << "Failed to put service name after " << maxRetries << " attempts." << endl;
     }
-    cerr << "DIR_SVC_CLIENT_STUB: success in dirsvcclient register service:" << success << endl;
 
     return success;
 }
 
+/**
+ * Same functionality as KVGET but instead of getting a value (arbitrary string) we are fetching the server name and server port.
+ * The DirSvcClientStub is interface for how clients and kv servers will interact with the DNS server.
+ * This method is used for searching for a service based on a service name.
+ */
 ServerSearchInfo DirSvcServiceStub::searchService(string svcName)
 {
     // init if needed
@@ -156,13 +168,13 @@ ServerSearchInfo DirSvcServiceStub::searchService(string svcName)
     // send the message3
     n = sendto(sockfd, (const char *)buffer, blen,
                MSG_CONFIRM, (const struct sockaddr *)&servaddr, sizeof(servaddr));
-    std::cout << "\n\nDIR_SVC_CLIENT_STUB: BYTES SENT ------------------------------------> " << dec << blen << endl;
 
     DIRSVC::dirSvcResponse searchRespMsg;
     const int maxRetries = 5; // Maximum number of retries
     int retries = 0;
     bool success = false;
 
+    // At least once semantics
     while (retries < maxRetries && !success)
     {
         len = sizeof(struct sockaddr_in);
@@ -170,13 +182,6 @@ ServerSearchInfo DirSvcServiceStub::searchService(string svcName)
         n = recvfrom(sockfd, (char *)buffer, MAXMSG,
                      MSG_WAITALL, (struct sockaddr *)&servaddrreply, &len);
 
-        std::cout << "DIR_SVC_CLIENT_STUB SEARCH: AFTER RECV FROM" << endl;
-
-        // std::stringstream ss;
-        // ss << "client recieved = " << n << std::endl;
-        // std::cout << ss.str();
-        // std::cout << HexDump{buffer,(uint32_t)n} << endl;
-        //  check for timeout here..
         if (n == -1)
         {
             std::cerr << " n == -1" << std::endl;
@@ -187,16 +192,7 @@ ServerSearchInfo DirSvcServiceStub::searchService(string svcName)
             continue;
         } // null ptrs and falls status };
 
-        // std::cerr << searchRespMsg.ParseFromArray(buffer, n) << "\n"
-        //           << searchRespMsg.has_searchres() << "\n"
-        //           << n << "\n"
-        //           << searchRespMsg.magic() << "\n"
-        //           << searchRespMsg.version() << "\n"
-        //           << 'DNS' << "\n" << searchRespMsg.serial() << "\n"
-        //           << serial << "\n"
-        //           << version1x << "\n"
-        //           << std::endl;
-                  
+        // Verify header details and correct message type
         if (searchRespMsg.ParseFromArray(buffer, n) &&
             searchRespMsg.magic() == 'DNS' &&
             searchRespMsg.version() == version1x &&
@@ -205,7 +201,6 @@ ServerSearchInfo DirSvcServiceStub::searchService(string svcName)
         {
 
             success = searchRespMsg.searchres().status();
-            std::cout << "DIR_SVC_CLIENT_STUB: SUCCESS FOR SEARCH IS: " << success << endl;
         }
         else
         {
@@ -217,7 +212,6 @@ ServerSearchInfo DirSvcServiceStub::searchService(string svcName)
 
     if (searchRespMsg.has_searchres())
     {
-        std::cerr << " has searchres" << std::endl;
         retVal.status = searchRespMsg.searchres().status();
         retVal.serverName = searchRespMsg.searchres().server_name();
         retVal.serverPort = searchRespMsg.searchres().server_port();
@@ -231,7 +225,7 @@ ServerSearchInfo DirSvcServiceStub::searchService(string svcName)
     return retVal;
 }
 
-// set up socket for calls to server
+// Configures the directory service client stub to talk to the DNS server by configuring the destination IP address and port
 bool DirSvcServiceStub::init()
 {
 
@@ -280,6 +274,7 @@ bool DirSvcServiceStub::init()
     return true;
 }
 
+// Shuts down service
 void DirSvcServiceStub::shutdown()
 {
     if (!ready)
@@ -288,6 +283,9 @@ void DirSvcServiceStub::shutdown()
     ready = false;
 }
 
+/**
+ * This method is used for deleting a service from the DNS based on a provided service name.
+ */
 bool DirSvcServiceStub::deleteService(string key)
 {
     // init if needed
@@ -332,21 +330,19 @@ bool DirSvcServiceStub::deleteService(string key)
     // send the message3
     n = sendto(sockfd, (const char *)buffer, blen,
                MSG_CONFIRM, (const struct sockaddr *)&servaddr, sizeof(servaddr));
-    std::cout << "\n\nDIR_SVC_CLIENT_STUB: BYTES SENT ----------> " << dec << blen << endl;
 
     DIRSVC::dirSvcResponse deleteRespMsg;
     const int maxRetries = 5; // Maximum number of retries
     int retries = 0;
     bool success = false;
 
+    // At least once semantics
     while (retries < maxRetries && !success)
     {
         len = sizeof(struct sockaddr_in);
 
         n = recvfrom(sockfd, (char *)buffer, MAXMSG,
                      MSG_WAITALL, (struct sockaddr *)&servaddrreply, &len);
-
-        std::cout << "DIR_SVC_CLIENT_STUB: AFTER RECV FROM " << endl;
 
         if (n == -1)
         {
