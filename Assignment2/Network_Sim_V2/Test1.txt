@@ -1,0 +1,166 @@
+Main: ************************************
+Main: starting server
+
+
+Starting service: dns_server
+
+Starting service: kvserver
+
+-------------------- Registering DNS --------------------
+Starting service: 
+kvserver2
+DIR_SVC_CLIENT_STUB: Registering Service Name ---> email
+
+DIR_SVC_CLIENT_STUB: Registering Service Name ---> Main: ************************************
+taxiMain: init client
+
+
+
+waiting for call from client
+
+----------------- DNS SERVER RECEIVED SOMETHING -----------------
+
+DIR_SVC_SERVICE: register message requested
+
+DIR_SVC_SERVICE: THIS IS THE SERVICE KEY------------------>: taxi
+DIR_SVC_SERVICE: THIS IS THE SERVER KEY------------------>: kvserver2
+DIR_SVC_SERVICE: THIS IS THE SERVER PORT------------------>: 8089
+
+
+DIR_SVC_SERVICE: END OF REGISTER SERVICE
+
+waiting for call from client
+
+waiting for call from client
+Main: ************************************
+Main: starting client
+Main: ************************************
+Main: init client
+//-------------------------------------- KV CLIENT TEST ---------------------------------------//
+
+----------------- DNS SERVER RECEIVED SOMETHING -----------------
+
+DIR_SVC_SERVICE: register message requested
+
+DIR_SVC_SERVICE: THIS IS THE SERVICE KEY------------------>: email
+DIR_SVC_SERVICE: THIS IS THE SERVER KEY------------------>: kvserver
+DIR_SVC_SERVICE: THIS IS THE SERVER PORT------------------>: 8080
+
+
+DIR_SVC_SERVICE: END OF REGISTER SERVICE
+
+waiting for call from client
+
+----------------- DNS SERVER RECEIVED SOMETHING -----------------
+
+DIR_SVC_SERVICE: Search message requested
+DIR_SVC_SERVICE: Searching for following service -------> email
+
+DIR_SVC_SERVICE: Search Resolved Status -------> 1
+DIR_SVC_SERVICE: Search Resolved Server Name -------> kvserver
+DIR_SVC_SERVICE: Search Resolved Server Port-------> 8080
+
+DIR_SVC_SERVICE: END OF SEARCH SERVICE
+
+waiting for call from client
+
+KV_CLIENT_STUB: THE SERVER NAME SET IN KV CLIENT STUB IS --------> kvserver
+KV_CLIENT_STUB: THE SERVER PORT SET IN KV CLIENT STUB IS --------> 8080
+
+waiting for call from client
+Main: ************************************
+Main: starting client 2
+Main: ************************************
+Main: waiting for clients to finish
+----------------- DNS SERVER RECEIVED SOMETHING -----------------
+
+DIR_SVC_SERVICE: Search message requested
+DIR_SVC_SERVICE: Searching for following service -------> taxi
+
+DIR_SVC_SERVICE: Search Resolved Status -------> 1
+DIR_SVC_SERVICE: Search Resolved Server Name -------> kvserver2
+DIR_SVC_SERVICE: Search Resolved Server Port-------> 8089
+
+DIR_SVC_SERVICE: END OF SEARCH SERVICE
+
+waiting for call from client
+
+KV_CLIENT_STUB: THE SERVER NAME SET IN KV CLIENT STUB IS --------> kvserver2
+KV_CLIENT_STUB: THE SERVER PORT SET IN KV CLIENT STUB IS --------> 8089
+
+put message requested
+put message requested
+waiting for call from client
+//-------------------------------------- END OF PUT ---------------------------------------//
+
+MESSAGE STORED IN DB------> This is a test! Kevin!
+STATUS OF PUT IS: 1
+
+
+//-------------------------------------- END OF PUT ---------------------------------------//
+
+waiting for call from client
+MESSAGE STORED IN DB------> LOOOOOOOOOOOOOOOOOOOOOOOOL
+get message requested
+get message requested
+waiting for call from client
+waiting for call from client
+//-------------------------------------- END OF GET ---------------------------------------//
+
+STATUS OF GET IS: 1
+STATUS OF GET IS: This is a test! Kevin!
+
+
+DIR_SVC_CLIENT_STUB: Key sent to delete ---------> email
+//-------------------------------------- END OF GET ---------------------------------------//
+
+
+----------------- DNS SERVER RECEIVED SOMETHING -----------------
+
+DIR_SVC_SERVICE: delete message requested
+
+DIR_SVC_SERVICE: deleting following service ------->email
+DIR_SVC_SERVICE: Deleted the following service -------->email
+
+
+DIR_SVC_SERVICE: Remaining names in service server: 
+Key: taxi, Server Name: kvserver2, Server Port: 8089
+
+
+
+DIR_SVC_SERVICE: END OF DELETE SERVICE
+
+STATUS OF GET IS: 1
+VALUE OF GET IS: 
+waiting for call from client
+
+LOOOOOOOOOOOOOOOOOOOOOOOOL
+
+
+DIR_SVC_CLIENT_STUB: Key sent to delete ---------> taxi
+
+
+DIR_SVC_CLIENT_STUB: BYTES SENT ----------> 18
+----------------- DNS SERVER RECEIVED SOMETHING -----------------
+
+DIR_SVC_SERVICE: delete message requested
+DIR_SVC_SERVICE: deleting following service ------->taxi
+DIR_SVC_SERVICE: Deleted the following service -------->taxi
+
+
+DIR_SVC_SERVICE: Remaining names in service server: 
+KVCLIENT STUB: DELETE STATUS------> 1
+
+DIR_SVC_SERVICE: END OF DELETE SERVICE
+
+waiting for call from client
+
+KVCLIENT STUB: DELETE STATUS------> 1
+Main: ************************************
+Main: waiting for clients to finish
+
+Main: ************************************
+Main: calling stop services on server
+
+Main: ************************************
+Main: waiting for threads to complete
