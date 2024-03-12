@@ -1,0 +1,53 @@
+syntax="proto3";
+
+package ServiceDirectory;
+
+message svcDirRequest{
+    uint32 magic = 1;
+    uint32 version= 2;
+    uint32 serial = 3;
+    oneof function {
+        registerRequest registerArgs = 4;
+        searchRequest searchArgs = 5;
+        removeRequest removeArgs = 6;
+    }
+}
+
+message registerRequest {
+    string serviceName = 1;
+    string serverName = 2;
+    uint32 port = 3;
+}
+
+message searchRequest {
+    string serviceName = 1;
+}
+
+message removeRequest {
+    string serviceName = 1;
+}
+
+message svcDirResponse {
+    uint32 magic = 1;
+    uint32 version = 2;
+    uint32 serial = 3;
+    oneof function {
+        registerResponse registerRes =4;
+        searchResponse searchRes =5;
+        removeResponse removeRes =6;
+    }
+}
+
+message registerResponse {
+    bool status=1;
+}
+
+message removeResponse {
+    bool status=1;
+}
+
+message searchResponse {
+    bool status=1;
+    string serverName = 2;
+    uint32 port = 3;
+}
