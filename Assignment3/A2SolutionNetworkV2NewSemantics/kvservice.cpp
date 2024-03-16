@@ -91,7 +91,7 @@ void KVServiceServer::start()
     cerr << ss.str();
     bool svcRes = svcDirService.registerService(svcName, nodeName(), port);
     ss = stringstream();
-    ss << "Register result is " << svcRes << endl;
+    ss << "Register result is " << endl;
     cerr << ss.str();
 
     socklen_t len;
@@ -108,7 +108,7 @@ void KVServiceServer::start()
                      &len);
 
         ss = stringstream();
-        ss << "kv server received " << n << " bytes." << endl;
+        ss << "KVSERVICE: " << name << " kv server received " << n << " bytes." << endl;
         // ss << HexDump{udpMessage, (uint32_t)n} << endl;
         cerr << ss.str();
 
@@ -139,6 +139,7 @@ void KVServiceServer::start()
             if ((receivedMsg.version() & 0xFF00) == version1x)
             {
                 // dispatch version 1.x
+                // AKA DO THE RESPECTIVE PUT OR GET ACTION
                 callMethodVersion1(receivedMsg, replyMsg);
             }
             else
@@ -191,6 +192,32 @@ void KVServiceServer::callMethodVersion1(E477KV::kvRequest &receivedMsg, E477KV:
         E477KV::putResponse *presp = replyMsg.mutable_putres();
         presp->set_status(putRes);
 
+        cout << "\nKVSERVICE: Server Name: " << name << endl;
+        cout << "KVSERVICE: This is the key: " << (int32_t)key << endl;
+        cout << "KVSERVICE: This is the value: " << valueAsStr << endl;
+        cout << "KVSERVICE: This is the value size: " << (uint16_t)valueAsStr.size() << endl;
+        cout << "KVSERVICE: put response is: " << putRes << endl;
+        cout << "KVSERVICE: Is it a Primary server: " << isPrimary << endl;
+
+        // Assuming this is the primary server and the put response succeeded
+        if (isPrimary)
+        {
+
+            bool replicasUpdated = true;
+            for (auto it = replicas->begin(); it != replicas->end(); ++it)
+            {
+                cout << "KVSERVICE: replica name: " << it->name << endl;
+                cout << "KVSERVICE: replica port: " << it->portNumber << endl;
+
+                // Updating all of the replicas
+                kvPutReplica((int32_t)key, (const uint8_t *)valueAsStr.data(), (uint16_t)valueAsStr.size(), it->name, it->portNumber);
+            }
+        }
+        else
+        {
+            cout << "KVSERVICE: END OF REPLICA\n"
+                 << endl;
+        }
     }
     if (receivedMsg.has_getargs())
     {
@@ -207,7 +234,6 @@ void KVServiceServer::callMethodVersion1(E477KV::kvRequest &receivedMsg, E477KV:
         E477KV::getResponse *gr = replyMsg.mutable_getres();
         gr->set_status(result.status);
         gr->set_value(string((char *)result.value, result.vlen));
-
     }
 }
 
@@ -265,3 +291,198 @@ kvGetResult KVServiceServer::kvGet(int key)
 
 void KVServiceServer::setServiceDirServer(string name) { svcDirService.setServerName(name); }
 void KVServiceServer::setServiceName(string svcName) { this->svcName = svcName; }
+
+// New methods:
+
+/**
+ * Will send back a list of server addresses and file descriptors (which are integers)
+ */
+KVServiceServer::sendToAddress KVServiceServer::init(string serverName, int replicaPort)
+{
+    int replicaSockfd;
+    sendToAddress res;
+    struct sockaddr_in servaddr; // Added this local variable here
+
+    stringstream ss;
+    ss << "\nKVServiceServer: Entering init" << endl;
+    cerr << ss.str();
+
+    // Filling server information of the replicas. The primary thing we are interested here is the servaddr struct which will hold the destination server address
+    memset(&servaddr, 0, sizeof(servaddr));
+    servaddr.sin_family = AF_INET;
+    servaddr.sin_port = htons(replicaPort);
+
+    struct addrinfo *addr_result;
+    int errcode = getaddrinfo(serverName.c_str(), nullptr, nullptr, &addr_result);
+    if (errcode != 0)
+    {
+        cout << "error finding address of " << serverName << gai_strerror(errcode) << endl;
+        return res;
+    }
+    else
+    {
+        if (addr_result == nullptr)
+        {
+            cout << "getaddr info said 0, but no pointer?" << endl;
+        }
+        else
+        {
+            if (addr_result->ai_next != nullptr)
+            {
+                cout << "should only be one result" << endl;
+            }
+            else
+            {
+                cout << "address of kvserver is: " << inet_ntoa(((sockaddr_in *)addr_result->ai_addr)->sin_addr) << endl;
+                servaddr.sin_addr = ((sockaddr_in *)addr_result->ai_addr)->sin_addr;
+            }
+            freeaddrinfo(addr_result);
+        }
+    }
+
+    // don't really need to implement this one in network as it doesn't use a socket
+    // inet_aton(serverAddrString.c_str(), &servaddr.sin_addr);// = inet_aton("127.0.0.1");//INADDR_ANY;
+
+    // Creating socket file descriptor
+    if ((replicaSockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
+    {
+        perror("socket creation failed");
+        exit(EXIT_FAILURE);
+    }
+
+    // set socket to timeout in 1 second if reply not received
+    // TODO this should be a parameter somehwere.
+    struct timeval tv;
+    tv.tv_sec = 1;
+    tv.tv_usec = 0;
+    if (setsockopt(replicaSockfd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv)) < 0)
+    {
+        perror("Error");
+        exit(1);
+    }
+
+    // Save the real server address and the socket file descriptor
+    res.servaddr = servaddr;
+    res.sockfd = replicaSockfd;
+    // ready = true;
+
+    return res;
+}
+
+bool KVServiceServer::kvPutReplica(int32_t key, const uint8_t *value, uint16_t vlen, string serverName, int serverPort)
+{
+    stringstream ss;
+
+    // init if needed
+    sendToAddress serverAddressInfo;
+    // if (!ready)
+    // {
+    serverAddressInfo = init(serverName, serverPort);
+    // }
+
+    int n;
+    socklen_t len;
+    uint32_t blen = MAXMSG;
+    uint8_t buffer[MAXMSG]; // to serialize into
+    struct sockaddr_in servaddrreply;
+
+    // get the current value of serial for this request.
+    uint32_t serial = this->serial++;
+
+    // marshal parameters to send.
+    E477KV::kvRequest msg;
+    msg.set_magic(magic);
+    msg.set_version(version1x);
+    msg.set_serial(serial++);
+
+    E477KV::putRequest *pr = msg.mutable_putargs();
+    pr->set_key(key);
+    pr->set_value(std::string((const char *)value, vlen));
+    blen = msg.ByteSizeLong();
+    if (blen > MAXMSG)
+    {
+        // too long??
+        std::cerr << " *** msg too long" << std::endl;
+        // errno = ???
+        return false;
+    }
+
+    msg.SerializeToArray(buffer, blen);
+
+    // ss = stringstream();
+    // ss << "In put, message is " << endl;
+    // ss << HexDump{buffer,blen} << endl;
+
+    ss << "\nSending to " << inet_ntoa(serverAddressInfo.servaddr.sin_addr) << endl;
+    cerr << ss.str();
+    // std::cout << "blen = " << dec << blen << endl;
+
+    // send the message to the server.
+    bool completed = false;
+    uint32_t numTries = 0;
+    E477KV::kvResponse putRespMsg;
+    while (!completed)
+    {
+        n = sendto(serverAddressInfo.sockfd, (const char *)buffer, blen,
+                   MSG_CONFIRM, (const struct sockaddr *)&serverAddressInfo.servaddr, sizeof(serverAddressInfo.servaddr));
+        // ss = stringstream();
+        // ss << "put client sendto n = " << n << endl;
+        // cerr << ss.str();
+
+        bool gotMessage = true;
+        do
+        {
+            len = sizeof(struct sockaddr_in);
+            n = recvfrom(serverAddressInfo.sockfd, (char *)buffer, MAXMSG,
+                         MSG_WAITALL, (struct sockaddr *)&servaddrreply, &len);
+
+            // check for timeout here..
+            if (n == -1)
+            {
+                numTries++;
+                gotMessage = false;
+                if (numTries > maxTries)
+                    return false;
+            }
+            else if (!putRespMsg.ParseFromArray(buffer, n))
+            {
+                cerr << "Couild not parse message" << endl;
+                // wait for another mesage
+            }
+            else if (putRespMsg.magic() != 'E477')
+            {
+                cerr << "Magic Mismatch" << endl;
+                gotMessage = false;
+            }
+            else if (msg.version() != putRespMsg.version())
+            {
+                cerr << "Version Mismatch" << endl;
+                gotMessage = false;
+            }
+            else if (msg.serial() != putRespMsg.serial())
+            {
+                // wait for another message is the serial number is wrong.
+                cerr << "Serial Numnbers Mismatch" << endl;
+                gotMessage = false;
+            }
+            else
+            {
+                // have a reasonble message
+                completed = true;
+            }
+        } while (!gotMessage);
+    }
+
+    bool returnRes = false;
+    if (putRespMsg.has_putres())
+    {
+        returnRes = putRespMsg.putres().status();
+    }
+    else
+    {
+        cerr << "wrong message type" << endl;
+        returnRes = false;
+    }
+
+    return returnRes;
+}

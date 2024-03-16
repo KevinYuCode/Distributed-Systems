@@ -37,9 +37,11 @@ int main(int argc, char *argv[])
     svcDirServer->startServices();
 
     ServerData::ServerInfo replica1 = {"kvserver2", 5000};
+    ServerData::ServerInfo replica2 = {"kvserver3", 5001};
     vector<ServerData::ServerInfo> *replicas = new vector<ServerData::ServerInfo>;
     ;
     replicas->push_back(replica1);
+    replicas->push_back(replica2);
 
     ServerData::ServerInfo *primaryServer = new ServerData::ServerInfo{"kvserver1", 5193};
 
@@ -53,19 +55,31 @@ int main(int argc, char *argv[])
     kvServer1->setPort(5193);
     kvServer1->init();
 
-    // Replica Server
+    // Replica Server 1
     shared_ptr<KVServer> kvServer2 = make_shared<KVServer>("kvserver2", nullptr, primaryServer, 0);
     kvServer2->setAddress("10.0.0.4");
     kvServer2->setDBMFileName("server2");
     kvServer2->setSvcDirServer("ServiceDirectory");
-    kvServer2->setSvcName("kv1");
+    kvServer2->setSvcName("replica");
     kvServer2->setPort(5000);
     kvServer2->init();
+
+    // Replica Server 2
+    shared_ptr<KVServer> kvServer3 = make_shared<KVServer>("kvserver3", nullptr, primaryServer, 0);
+    kvServer3->setAddress("10.0.0.5");
+    kvServer3->setDBMFileName("server3");
+    kvServer3->setSvcDirServer("ServiceDirectory");
+    kvServer3->setSvcName("replica2");
+    kvServer3->setPort(5001);
+    kvServer3->init();
 
     // After Servers have been initialized:
     kvServer1->startServices();
     kvServer2->startServices();
+    kvServer3->startServices();
 
+
+    // Initializing Clients
     std::cout << "\nMain: ************************************" << std::endl;
     std::cout << "Main: init client" << std::endl;
 
@@ -110,12 +124,16 @@ int main(int argc, char *argv[])
     std::cout << "Main: calling stop services on server" << std::endl;
 
     kvServer1->stopServices();
+    kvServer2->stopServices();
+    kvServer3->stopServices();
     svcDirServer->stopServices();
 
     std::cout << "\nMain: ************************************" << std::endl;
     std::cout << "Main: waiting for threads to complete" << std::endl;
     // wait for all server threads
     kvServer1->waitForServices();
+    kvServer2->waitForServices();
+    kvServer3->waitForServices();
 #ifdef NOTNOW
     kvServer2->waitForServices();
 #endif
