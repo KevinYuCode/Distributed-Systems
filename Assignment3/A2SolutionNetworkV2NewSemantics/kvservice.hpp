@@ -120,6 +120,8 @@ public:
     void setServiceName(string svcName);
     void setPort(in_port_t p) { port = p; }
     sendToAddress init(string serverName, int port);
+
+    // New Function
     bool kvPutReplica(int32_t, const uint8_t *value, uint16_t vlen, string serverName, int serverPort);
 };
 

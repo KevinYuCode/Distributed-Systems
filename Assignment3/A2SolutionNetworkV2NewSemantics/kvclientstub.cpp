@@ -45,7 +45,7 @@ bool KVServiceStub::kvPut(int32_t key, const uint8_t *value, uint16_t vlen)
     ss = stringstream();
     // ss << "In put, message is " << endl;
     // ss << HexDump{buffer,blen} << endl;
-    ss << "\nSending to " << inet_ntoa(servaddr.sin_addr) << endl;
+    ss << "\nKVCLIENTSTUB: Sending to " << inet_ntoa(servaddr.sin_addr) << endl;
     cerr << ss.str();
     // std::cout << "blen = " << dec << blen << endl;
 
@@ -263,7 +263,7 @@ bool KVServiceStub::init()
         return false;
     }
     ss = stringstream();
-    ss << "Client Stub " << name << "answer is server " << svcRes.serverName << ", port " << svcRes.port << endl;
+    ss << "Client Stub " << name << " answer is server " << svcRes.serverName << ", port " << svcRes.port << endl;
     cerr << ss.str();
 
     // Filling server information
@@ -293,7 +293,7 @@ bool KVServiceStub::init()
             }
             else
             {
-                cout << "address of kvserver is: " << inet_ntoa(((sockaddr_in *)addr_result->ai_addr)->sin_addr) << endl;
+                cout << "CLIENT STUB: address of kvserver is: " << inet_ntoa(((sockaddr_in *)addr_result->ai_addr)->sin_addr) << endl;
                 servaddr.sin_addr = ((sockaddr_in *)addr_result->ai_addr)->sin_addr;
             }
             freeaddrinfo(addr_result);

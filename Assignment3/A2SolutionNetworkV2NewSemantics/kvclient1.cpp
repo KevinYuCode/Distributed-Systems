@@ -22,16 +22,9 @@ void KVClient1::start()
     cout << "KVCLIENT: This is the value: " << (const uint8_t *)value1.data() << endl;
     cout << "KVCLIENT: This is the vlue size: " << (uint16_t)value1.size() << endl;
     bool putRes = kvService.kvPut((int32_t)25, (const uint8_t *)value1.data(), (uint16_t)value1.size());
-    cerr << "put status is " << putRes << "\n"
+    cerr << "KVCLIENT: put status is " << putRes << "\n"
          << endl;
 
-    // value1 = "WHYYYYYYYYYYYYYYYYYYYYYYY!!"s;
-    // cout << "KVCLIENT: This is the key: " << (int32_t)25 << endl;
-    // cout << "KVCLIENT: This is the value: " << (const uint8_t *)value1.data() << endl;
-    // cout << "KVCLIENT: This is the vlue size: " << (uint16_t)value1.size() << endl;
-    // putRes = kvService.kvPut((int32_t)25, (const uint8_t *)value1.data(), (uint16_t)value1.size());
-    // cerr << "put status is " << putRes << "\n"
-    //      << endl;
 
     // get the same value back.
     ss = stringstream();

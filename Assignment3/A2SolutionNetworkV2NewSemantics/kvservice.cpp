@@ -115,9 +115,7 @@ void KVServiceServer::start()
         {
 
             // Logging client IP and port
-            cout << "Received message from " << client_ip << ":" << client_port << endl;
-
-            cout << "THE RECORDED VALUE-----------> " << primaryServer->name << endl;
+            cout << "KVSERVICE: Received message from " << client_ip << ":" << client_port << endl;
 
             memset(&servaddr, 0, sizeof(servaddr));
             servaddr.sin_family = AF_INET;
@@ -144,8 +142,9 @@ void KVServiceServer::start()
                     else
                     {
                         replicasPrimaryServerAddress = inet_ntoa(((sockaddr_in *)addr_result->ai_addr)->sin_addr);
-                        cout << "THIS IS THE STORED PRIMARY SERVER ADDRESS---> " << replicasPrimaryServerAddress << endl;
-                        cout << "THIS IS THE RECEIVED IP ADDRESS ---> " << client_ip << endl;
+                        cout << "KVSERVICE: The primary server name is: " << primaryServer->name << endl;
+                        cout << "KVSERVICE: The primary server address is: " << replicasPrimaryServerAddress << endl;
+                        cout << "KVSERVICE: The source ip address is coming from: " << client_ip << endl;
                         servaddr.sin_addr = ((sockaddr_in *)addr_result->ai_addr)->sin_addr;
                     }
                     freeaddrinfo(addr_result);
@@ -184,12 +183,13 @@ void KVServiceServer::start()
 
             if (!isPrimary && replicasPrimaryServerAddress != client_ip)
             {
-                cerr << "Invalid Source IP Address" << endl;
+                cerr << "KVSERVICE REPLICA: INVALID SOURCE ADDRESS!" << endl;
                 return;
             }
             if ((receivedMsg.version() & 0xFF00) == version1x)
             {
-                cerr << "VALID SOURCE IP ADDRESS!" << endl;
+                if (!isPrimary)
+                    cerr << "KVSERVICE REPLICA: SOURCE ADDRESS IS FROM PRIMARY SERVER!" << endl;
 
                 // dispatch version 1.x
                 // AKA DO THE RESPECTIVE PUT OR GET ACTION
@@ -232,7 +232,7 @@ void KVServiceServer::callMethodVersion1(E477KV::kvRequest &receivedMsg, E477KV:
     if (receivedMsg.has_putargs())
     {
         stringstream ss;
-        ss << "put message requested" << endl;
+        ss << "KVSERVICE: put message requested" << endl;
         cerr << ss.str();
 
         const E477KV::putRequest &preq = receivedMsg.putargs();
@@ -281,7 +281,7 @@ void KVServiceServer::callMethodVersion1(E477KV::kvRequest &receivedMsg, E477KV:
     if (receivedMsg.has_getargs())
     {
         stringstream ss;
-        ss << "get message requested" << endl;
+        ss << "KVSERVICE: get message requested" << endl;
         cerr << ss.str();
 
         const E477KV::getRequest &greq = receivedMsg.getargs();
@@ -362,10 +362,6 @@ KVServiceServer::sendToAddress KVServiceServer::init(string serverName, int repl
     sendToAddress res;
     struct sockaddr_in servaddr; // Added this local variable here
 
-    stringstream ss;
-    ss << "\nKVServiceServer: Entering init" << endl;
-    cerr << ss.str();
-
     // Filling server information of the replicas. The primary thing we are interested here is the servaddr struct which will hold the destination server address
     memset(&servaddr, 0, sizeof(servaddr));
     servaddr.sin_family = AF_INET;
@@ -392,7 +388,7 @@ KVServiceServer::sendToAddress KVServiceServer::init(string serverName, int repl
             }
             else
             {
-                cout << "address of kvserver is: " << inet_ntoa(((sockaddr_in *)addr_result->ai_addr)->sin_addr) << endl;
+                cout << "KVSERVICE: address of kvserver is: " << inet_ntoa(((sockaddr_in *)addr_result->ai_addr)->sin_addr) << endl;
                 servaddr.sin_addr = ((sockaddr_in *)addr_result->ai_addr)->sin_addr;
             }
             freeaddrinfo(addr_result);
@@ -472,7 +468,7 @@ bool KVServiceServer::kvPutReplica(int32_t key, const uint8_t *value, uint16_t v
     // ss << "In put, message is " << endl;
     // ss << HexDump{buffer,blen} << endl;
 
-    ss << "\nSending to " << inet_ntoa(serverAddressInfo.servaddr.sin_addr) << endl;
+    ss << "\nKVSERVICE: Sending to " << inet_ntoa(serverAddressInfo.servaddr.sin_addr) << endl;
     cerr << ss.str();
     // std::cout << "blen = " << dec << blen << endl;
 
