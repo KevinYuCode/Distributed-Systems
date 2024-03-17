@@ -50,7 +50,7 @@ void KVServiceServer::start()
     dataFile = gdbm_open(DBMFileName.c_str(), 0, GDBM_WRCREAT, 0644, NULL);
     if (!dataFile)
     {
-        cerr << "GDBMM Error: " << gdbm_strerror(gdbm_errno) << endl;
+        cerr << "GDBM Error: " << gdbm_strerror(gdbm_errno) << endl;
         return;
     }
 #endif
@@ -91,7 +91,7 @@ void KVServiceServer::start()
     cerr << ss.str();
     bool svcRes = svcDirService.registerService(svcName, nodeName(), port);
     ss = stringstream();
-    ss << "Register result is " << endl;
+    ss << "Register result is " << svcRes << endl;
     cerr << ss.str();
 
     socklen_t len;
@@ -106,6 +106,52 @@ void KVServiceServer::start()
         n = recvfrom(sockfd, (uint8_t *)udpMessage, MAXMSG,
                      MSG_WAITALL, (struct sockaddr *)&cliaddr,
                      &len);
+        string replicasPrimaryServerAddress;
+        char client_ip[INET_ADDRSTRLEN];
+        inet_ntop(AF_INET, &(cliaddr.sin_addr), client_ip, INET_ADDRSTRLEN);
+        int client_port = ntohs(cliaddr.sin_port);
+        // Source Address
+        if (n > 0 && !isPrimary)
+        {
+
+            // Logging client IP and port
+            cout << "Received message from " << client_ip << ":" << client_port << endl;
+
+            cout << "THE RECORDED VALUE-----------> " << primaryServer->name << endl;
+
+            memset(&servaddr, 0, sizeof(servaddr));
+            servaddr.sin_family = AF_INET;
+            servaddr.sin_port = htons(primaryServer->portNumber);
+            struct addrinfo *addr_result;
+            int errcode = getaddrinfo(primaryServer->name.c_str(), nullptr, nullptr, &addr_result);
+            if (errcode != 0)
+            {
+                cout << "error finding address of " << primaryServer->name << gai_strerror(errcode) << endl;
+                return;
+            }
+            else
+            {
+                if (addr_result == nullptr)
+                {
+                    cout << "getaddr info said 0, but no pointer?" << endl;
+                }
+                else
+                {
+                    if (addr_result->ai_next != nullptr)
+                    {
+                        cout << "should only be one result" << endl;
+                    }
+                    else
+                    {
+                        replicasPrimaryServerAddress = inet_ntoa(((sockaddr_in *)addr_result->ai_addr)->sin_addr);
+                        cout << "THIS IS THE STORED PRIMARY SERVER ADDRESS---> " << replicasPrimaryServerAddress << endl;
+                        cout << "THIS IS THE RECEIVED IP ADDRESS ---> " << client_ip << endl;
+                        servaddr.sin_addr = ((sockaddr_in *)addr_result->ai_addr)->sin_addr;
+                    }
+                    freeaddrinfo(addr_result);
+                }
+            }
+        }
 
         ss = stringstream();
         ss << "KVSERVICE: " << name << " kv server received " << n << " bytes." << endl;
@@ -136,8 +182,15 @@ void KVServiceServer::start()
             replyMsg.set_version(receivedMsg.version());
             replyMsg.set_serial(receivedMsg.serial());
 
+            if (!isPrimary && replicasPrimaryServerAddress != client_ip)
+            {
+                cerr << "Invalid Source IP Address" << endl;
+                return;
+            }
             if ((receivedMsg.version() & 0xFF00) == version1x)
             {
+                cerr << "VALID SOURCE IP ADDRESS!" << endl;
+
                 // dispatch version 1.x
                 // AKA DO THE RESPECTIVE PUT OR GET ACTION
                 callMethodVersion1(receivedMsg, replyMsg);
@@ -215,6 +268,12 @@ void KVServiceServer::callMethodVersion1(E477KV::kvRequest &receivedMsg, E477KV:
         }
         else
         {
+            kvGetResult result = kvGet(key);
+            cout << "KVSERVICE REPLICA GET: Key used --> " << key << endl;
+            cout << "KVSERVICE REPLICA GET: Status --> " << result.status << endl;
+            cout << "KVSERVICE REPLICA GET: Value --> " << result.value << endl;
+            cout << "KVSERVICE REPLICA GET: Value Length --> " << result.vlen << endl;
+
             cout << "KVSERVICE: END OF REPLICA\n"
                  << endl;
         }

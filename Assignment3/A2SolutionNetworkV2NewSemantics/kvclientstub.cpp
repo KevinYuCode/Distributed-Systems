@@ -259,7 +259,7 @@ bool KVServiceStub::init()
     SvcDirSearchResult svcRes = svcDirService.searchService(svcName);
     if (!svcRes.status)
     {
-        cerr << "Service serve not found!! " << endl;
+        cerr << "Service server not found!! " << endl;
         return false;
     }
     ss = stringstream();
