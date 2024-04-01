@@ -24,7 +24,6 @@
 #include <vector>
 #include "serverData.h"
 
-
 using namespace std;
 
 class KVServiceServer : public Service
@@ -57,13 +56,22 @@ class KVServiceServer : public Service
     kvGetResult kvGet(int key);
 
     // NEW VARIABLES
-
     int isPrimary = 0;
     vector<ServerData::ServerInfo> *replicas;
     ServerData::ServerInfo *primaryServer;
+    bool ready;
+    atomic<uint32_t> serial;
+    const uint32_t maxTries = 3;
+
+
 
 public:
-    KVServiceServer(string name, weak_ptr<Node> p, vector<ServerData::ServerInfo> *replicas, ServerData::ServerInfo *primaryServer, int isPrimary) : Service(name + ".KV_RPC", p), svcDirService(name + ".svcDirstub")
+    struct sendToAddress
+    {
+        sockaddr_in servaddr;
+        int sockfd;
+    };
+    KVServiceServer(string name, weak_ptr<Node> p, vector<ServerData::ServerInfo> *replicas, ServerData::ServerInfo *primaryServer, int isPrimary) : Service(name + ".KV_RPC", p), svcDirService(name + ".svcDirstub"), serial(1)
     {
         this->isPrimary = isPrimary; // Keeps track of whether the service is a primary service/server
 
@@ -72,7 +80,7 @@ public:
         {
             this->replicas = replicas;
             cout
-                << "Name of primary Server: " << name << " The replica server is: "<< (*replicas)[0].name << endl;
+                << "Name of primary Server: " << name << " The replica server is: " << (*replicas)[0].name << endl;
         }
 
         // If Replica
@@ -111,6 +119,10 @@ public:
     void setServiceDirServer(string addr);
     void setServiceName(string svcName);
     void setPort(in_port_t p) { port = p; }
+    sendToAddress init(string serverName, int port);
+
+    // New Function
+    bool kvPutReplica(int32_t, const uint8_t *value, uint16_t vlen, string serverName, int serverPort);
 };
 
 #endif
