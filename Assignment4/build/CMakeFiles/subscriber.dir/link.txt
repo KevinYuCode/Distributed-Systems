@@ -1,0 +1,1 @@
+/usr/bin/c++  -std=gnu++11 CMakeFiles/subscriber.dir/subscriber.cpp.o CMakeFiles/subscriber.dir/statekey.cpp.o CMakeFiles/subscriber.dir/controlTransfer.cpp.o -o subscriber  -Wl,-rpath,/home/kevin/cyclone/install/lib /home/kevin/cyclone/install/lib/libddscxx.so.0.11.0 /home/kevin/cyclone/install/lib/libddsc.so.0.11.0 

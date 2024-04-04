@@ -1,0 +1,14 @@
+/*
+ * Radar Exaple from #477W9C3
+ */
+
+module Radar {
+    @final
+    struct Track {
+        @key uint32 id;
+        uint64 timestamp;
+	double strt_angle;
+        double end_angle;
+	double distance;
+    };
+};

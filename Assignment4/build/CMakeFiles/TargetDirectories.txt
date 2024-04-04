@@ -1,0 +1,10 @@
+/mnt/c/Users/yukev/Documents/School/4th Year/ELEC_477/Main/Assignment4/build/CMakeFiles/statedata_generate.dir
+/mnt/c/Users/yukev/Documents/School/4th Year/ELEC_477/Main/Assignment4/build/CMakeFiles/controlTransfer_generate.dir
+/mnt/c/Users/yukev/Documents/School/4th Year/ELEC_477/Main/Assignment4/build/CMakeFiles/genData.dir
+/mnt/c/Users/yukev/Documents/School/4th Year/ELEC_477/Main/Assignment4/build/CMakeFiles/query.dir
+/mnt/c/Users/yukev/Documents/School/4th Year/ELEC_477/Main/Assignment4/build/CMakeFiles/center.dir
+/mnt/c/Users/yukev/Documents/School/4th Year/ELEC_477/Main/Assignment4/build/CMakeFiles/apartDepart.dir
+/mnt/c/Users/yukev/Documents/School/4th Year/ELEC_477/Main/Assignment4/build/CMakeFiles/flights.dir
+/mnt/c/Users/yukev/Documents/School/4th Year/ELEC_477/Main/Assignment4/build/CMakeFiles/subscriber.dir
+/mnt/c/Users/yukev/Documents/School/4th Year/ELEC_477/Main/Assignment4/build/CMakeFiles/edit_cache.dir
+/mnt/c/Users/yukev/Documents/School/4th Year/ELEC_477/Main/Assignment4/build/CMakeFiles/rebuild_cache.dir

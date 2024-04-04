@@ -1,0 +1,14 @@
+module ControlTransfer {
+    @final
+    enum FlightZone {
+        AD,
+        CENTRE
+    };
+    struct Update {
+        string callsign;
+        FlightZone to;
+        FlightZone from;
+        unsigned long timestamp;
+        // Add other fields as necessary
+    };
+};

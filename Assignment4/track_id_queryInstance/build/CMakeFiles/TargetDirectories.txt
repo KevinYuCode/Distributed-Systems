@@ -1,0 +1,5 @@
+/mnt/c/Users/yukev/Documents/School/4th Year/ELEC_477/Main/Assignment4/track_id_queryInstance/build/CMakeFiles/trackdata_generate.dir
+/mnt/c/Users/yukev/Documents/School/4th Year/ELEC_477/Main/Assignment4/track_id_queryInstance/build/CMakeFiles/track_publisher.dir
+/mnt/c/Users/yukev/Documents/School/4th Year/ELEC_477/Main/Assignment4/track_id_queryInstance/build/CMakeFiles/track_subscriber.dir
+/mnt/c/Users/yukev/Documents/School/4th Year/ELEC_477/Main/Assignment4/track_id_queryInstance/build/CMakeFiles/edit_cache.dir
+/mnt/c/Users/yukev/Documents/School/4th Year/ELEC_477/Main/Assignment4/track_id_queryInstance/build/CMakeFiles/rebuild_cache.dir
