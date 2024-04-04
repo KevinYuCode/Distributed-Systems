@@ -1,0 +1,11 @@
+Documentation of your solution 6/6
+- perfect documentation covering all requirements
+
+Code Correctness 6/6
+
+
+Style And Clarity 4/4 
+
+Testing Documentation and Cases 4/4 
+- great mentioning the steps of the test case 
+- good that you showed the output
