@@ -37,10 +37,10 @@ inline // KY: Haversine formula to calculate distance between two points specifi
     const double R = 6371.0;
 
     // Convert latitude and longitude from degrees to radians
-    lat1 = deg2rad(lat1);
-    lat2 = deg2rad(lat2);
     double dLat = deg2rad(lat2 - lat1);
     double dLon = deg2rad(lon2 - lon1);
+    lat1 = deg2rad(lat1);
+    lat2 = deg2rad(lat2);
 
     // Apply Haversine formula
     double a = sin(dLat / 2) * sin(dLat / 2) + cos(lat1) * cos(lat2) * sin(dLon / 2) * sin(dLon / 2);
@@ -94,7 +94,7 @@ int main(int argc, char *argv[])
 
     rsc.enabled_statuses(dds::core::status::StatusMask::data_available() | dds::core::status::StatusMask::subscription_matched());
     controlRsc.enabled_statuses(dds::core::status::StatusMask::data_available());
-    
+
     waitset.attach_condition(rsc);
     waitset.attach_condition(controlRsc);
 
@@ -152,11 +152,13 @@ int main(int argc, char *argv[])
                 // note not all samples may be valid.
                 if (info.valid())
                 {
-                    cout << "**** subscriber received: " << ++count << endl;
+                    cout << "\n -------------- subscriber received -------------- " << endl;
+                    cout << "    Count : \"" << ++count << "\"" << endl;
                     cout << "    callsign : \"" << msg.callsign() << "\"" << endl;
                     cout << "    TO : \"" << msg.to() << "\"" << endl;
                     cout << "    FROM : \"" << msg.from() << "\"" << endl;
-                    cout << "    timestamp : \"" << msg.timestamp() << "\"" << endl;
+                    cout << "    timestamp : \"" << msg.timestamp() << "\"\n"
+                         << endl;
                 }
             }
         }
@@ -201,14 +203,19 @@ int main(int argc, char *argv[])
                             // Checking if the plane exists in the set already
 
                             // If the plane is in the set we then continue the loop
-                            if(mySet.find(msg.callsign()) != mySet.end()){
+                            if (mySet.find(msg.callsign()) != mySet.end())
+                            {
+                                cout << "\n DUPLICATE UPDATE FLIGHT ALREADY PUBLISHED: "
+                                     << msg.callsign() << " \n"
+                                     << endl;
                                 continue;
                             }
-                            
+
                             mySet.insert(msg.callsign());
 
                             // ABOUT TO LEAVE THE AD THRESHOLD
-
+                            cout << "\n-------------- PLANE LEAVING AD --------------"
+                                 << endl;
                             cout << "  PUBLISH:  callsign : \"" << msg.callsign() << "\"" << endl;
                             cout << "  PUBLISH:  vert rate : \"" << msg.vertrate() << "\"" << endl;
                             cout << "  PUBLISH:  distance : \"" << distance << "\"" << endl;
@@ -230,7 +237,8 @@ int main(int argc, char *argv[])
         }
         else
         {
-            cout << programName << ": no samples?" << endl;
+            cout << "\n : no samples?\n"
+                 << endl;
         }
     }
 }

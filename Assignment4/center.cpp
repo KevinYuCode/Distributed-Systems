@@ -141,11 +141,12 @@ int main(int argc, char *argv[])
                 // note not all samples may be valid.
                 if (info.valid())
                 {
-                    cout << "**** subscriber received: " << ++count << endl;
+                    cout << "\n -------------- subscriber received -------------- " << endl;
+                    cout << "    Count : \"" << ++count << "\"" << endl;
                     cout << "    callsign : \"" << msg.callsign() << "\"" << endl;
                     cout << "    TO : \"" << msg.to() << "\"" << endl;
                     cout << "    FROM : \"" << msg.from() << "\"" << endl;
-                    cout << "    timestamp : \"" << msg.timestamp() << "\"" << endl;
+                    cout << "    timestamp : \"" << msg.timestamp() << "\"\n" << endl;
                 }
             }
         }
@@ -186,13 +187,19 @@ int main(int argc, char *argv[])
                         if (distance <= 8 && meterToFeet(msg.baroaltitude()) <= 3000 && msg.vertrate() < 0)
                         {
 
-                            if(mySet.find(msg.callsign()) != mySet.end()){
+                            if (mySet.find(msg.callsign()) != mySet.end())
+                            {
+                                cout << "\n DUPLICATE UPDATE FLIGHT ALREADY PUBLISHED: "
+                                     << msg.callsign() << " \n"
+                                     << endl;
                                 continue;
                             }
 
                             mySet.insert(msg.callsign());
-                            
+
                             // ABOUT TO LEAVE THE AD THRESHOLD
+                            cout << "\n-------------- PLANE LEAVING CENTER --------------"
+                                 << endl;
                             cout << "  PUBLISH:  callsign : \"" << msg.callsign() << "\"" << endl;
                             cout << "  PUBLISH:  vert rate : \"" << msg.vertrate() << "\"" << endl;
                             cout << "  PUBLISH:  distance : \"" << distance << "\"" << endl;
@@ -214,7 +221,8 @@ int main(int argc, char *argv[])
         }
         else
         {
-            cout << programName << ": no samples?" << endl;
+            cout << "\n: no samples?\n"
+                 << endl;
         }
     }
 }

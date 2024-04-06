@@ -112,12 +112,14 @@ int main(int argc, char *argv[])
         }
 
         // trace output
+        cout << "Callsign " << aircraft.callsign
+             << endl;
         cout << "Count " << count++ << endl;
-        cout << "time " << aircraft.time << endl;
-        cout << "icao24 " << aircraft.icao24 << endl;
-        cout << "baroAltitude " << aircraft.baroaltitude * 3.281<< endl;
-        cout << "callsign " << aircraft.callsign << endl;
-        
+        cout << "Time " << aircraft.time << endl;
+        cout << "BaroAltitude " << aircraft.baroaltitude * 3.281 << endl;
+        cout << "Latitude" << aircraft.lat << endl;
+        cout << "Longitude " << aircraft.lon * 3.281 << "\n"
+             << endl;
 
         // transfer data from helper class to message class
         msg.timestamp(aircraft.time);
